@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}我的订单中心 - 鲜时家{% endblock %}
+
+{% block content %}
+<style>
+    .order-status-badge {
+        padding: 3px 8px;
+        font-weight: bold;
+        font-size: 11px;
+    }
+    
+    .status-pay {
+        background-color: #FFF2F2;
+        color: #CC0000;
+        border: 1px solid #FFC4C4;
+    }
+    
+    .status-ship {
+        background-color: #FFF7EB;
+        color: #FF6600;
+        border: 1px solid #FFD8A6;
+    }
+    
+    .status-recv {
+        background-color: #E6F3FF;
+        color: #0066CC;
+        border: 1px solid #B3D7FF;
+    }
+    
+    .status-completed {
+        background-color: #E2F5E2;
+        color: #008000;
+        border: 1px solid #B5E4B5;
+    }
+    
+    .order-header-info {
+        background-color: #F7F7F7;
+        border: 1px solid #CCCCCC;
+        border-bottom: none;
+        padding: 8px 12px;
+        margin-top: 15px;
+        font-size: 12px;
+        overflow: hidden;
+    }
+    
+    .order-header-left {
+        float: left;
+    }
+    
+    .order-header-right {
+        float: right;
+    }
+</style>
+
+<h2 style="font-family: 'Microsoft YaHei', '微软雅黑'; color: #333333; margin-top:0;">📋 我的订单中心</h2>
+<p style="color:#666666;">您在此处可实时查看交易进度，货到付款订单由后台为您手动发货。</p>
+
+{% if orders %}
+    {% for order in orders %}
+        <div class="order-header-info">
+            <div class="order-header-left">
+                <strong>下单时间：</strong>{{ order.created_at|datetime_format }} &nbsp;&nbsp;|&nbsp;&nbsp; 
+                <strong>订单号：</strong><span style="font-family:Consolas;">{{ order.order_no }}</span> &nbsp;&nbsp;|&nbsp;&nbsp;
+                <strong>支付方式：</strong>
+                {% if order.payment_method == 'alipay' %}
+                    支付宝支付
+                {% elif order.payment_method == 'wechat' %}
+                    微信支付
+                {% else %}
+                    货到付款
+                {% endif %}
+            </div>
+            
+            <div class="order-header-right">
+                <strong>当前状态：</strong>
+                {% if order.status == 'pending_pay' %}
+                    <span class="order-status-badge status-pay">待付款</span>
+                {% elif order.status == 'pending_ship' %}
+                    <span class="order-status-badge status-ship">待发货</span>
+                {% elif order.status == 'pending_recv' %}
+                    <span class="order-status-badge status-recv">待收货</span>
+                {% else %}
+                    <span class="order-status-badge status-completed">交易成功</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <table class="retro-table" style="margin-top:0; border-top:none;">
+            <thead>
+                <tr>
+                    <th style="width: 80px; border-top:none;">商品图</th>
+                    <th style="border-top:none;">商品名称</th>
+                    <th style="width: 150px; border-top:none;">规格属性</th>
+                    <th style="width: 100px; border-top:none;">单价</th>
+                    <th style="width: 80px; border-top:none;">数量</th>
+                    <th style="width: 120px; border-top:none;">订单总额</th>
+                    <th style="width: 130px; border-top:none;">物流追踪 / 操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items %}
+                    <tr>
+                        <td>
+                            {% if item.product_id == 1 %}
+                                <img src="/static/images/box1.png" alt="{{ item.product_name }}" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='https://placehold.co/40x40?text=商品';">
+                            {% elif item.product_id == 2 %}
+                                <img src="/static/images/bag1.png" alt="{{ item.product_name }}" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='https://placehold.co/40x40?text=商品';">
+                            {% else %}
+                                <img src="/static/images/logo.jpg" alt="{{ item.product_name }}" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='https://placehold.co/40x40?text=商品';">
+                            {% endif %}
+                        </td>
+                        <td style="text-align: left; padding-left: 15px;">
+                            <strong>{{ item.product_name }}</strong>
+                        </td>
+                        <td>
+                            <span style="color:#666666;">规格：{{ item.sku_size or '默认' }}</span><br>
+                            <span style="color:#666666;">颜色：{{ item.sku_color or '默认' }}</span>
+                        </td>
+                        <td>￥{{ "%.2f"|format(item.price) }}</td>
+                        <td>{{ item.quantity }}</td>
+                        
+                        <!-- 跨行合并订单信息 (只在第一行渲染) -->
+                        {% if loop.first %}
+                            <td rowspan="{{ order.items|length }}" style="vertical-align: middle; border-left: 1px solid #CCCCCC;">
+                                <strong style="color:#C80A1E; font-size:14px; font-family:Arial;">￥{{ "%.2f"|format(order.total_amount) }}</strong><br>
+                                <span style="font-size:10px; color:#999;">(含包装费/快递包邮)</span>
+                            </td>
+                            <td rowspan="{{ order.items|length }}" style="vertical-align: middle; border-left: 1px solid #CCCCCC;">
+                                {% if order.status == 'pending_pay' %}
+                                    <a href="{{ url_for('pay_page', order_no=order.order_no) }}" class="btn-retro" style="padding: 3px 10px; font-size:11px;">去支付</a>
+                                {% elif order.status == 'pending_ship' %}
+                                    <span style="color:#FF6600;">商家正在配货中...</span>
+                                {% elif order.status == 'pending_recv' %}
+                                    <span style="font-size:11px; color:#0066CC;">单号: {{ order.tracking_no }}</span><br>
+                                    <a href="{{ url_for('confirm_receipt', order_id=order.id) }}" class="btn-retro" style="padding: 3px 10px; font-size:11px; margin-top:5px; background-color:#008000; border-color:#006600;">确认收货</a>
+                                {% else %}
+                                    <span style="color:#008000; font-weight:bold;">交易完成</span><br>
+                                    <a href="{{ url_for('product_detail', product_id=item.product_id) }}?tab=reviews" style="font-size:11px; text-decoration:underline; display:inline-block; margin-top:5px;">去发表/看评价</a>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+{% else %}
+    <div style="background-color: #FFFFFF; border: 1px solid #CCCCCC; padding: 40px; text-align: center;">
+        <p style="font-size: 16px; font-weight: bold; color: #999999;">您目前还没有任何订单记录噢！</p>
+        <p style="color: #666666; margin-bottom: 20px;">快挑选保鲜好物放进购物车，体验一键下单与模拟在线扫码支付吧~</p>
+        <a href="{{ url_for('index') }}" class="btn-retro">返回商城首页选购</a>
+    </div>
+{% endif %}
+{% endblock %}

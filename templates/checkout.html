@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}确认订单中心 - 鲜时家{% endblock %}
+
+{% block content %}
+<style>
+    .checkout-title {
+        font-family: "Microsoft YaHei", "微软雅黑";
+        font-size: 16px;
+        font-weight: bold;
+        color: #C80A1E;
+        border-bottom: 2px solid #C80A1E;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+    }
+    
+    .checkout-section {
+        background-color: #FFFFFF;
+        border: 1px solid #CCCCCC;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .address-card-checkout {
+        border: 1px solid #CCCCCC;
+        background-color: #FAFAFA;
+        padding: 12px;
+        margin-bottom: 10px;
+        cursor: pointer;
+    }
+    
+    .address-card-checkout:hover {
+        border-color: #C80A1E;
+    }
+    
+    .address-card-checkout.selected {
+        border: 2px solid #C80A1E;
+        background-color: #FFFDF0;
+        background: #FFFDF0 url('https://pics.taobaocdn.com/img/gui/icon_selected.gif') no-repeat right bottom;
+    }
+    
+    .pay-method-option {
+        border: 1px solid #CCCCCC;
+        padding: 10px 20px;
+        display: inline-block;
+        margin-right: 15px;
+        cursor: pointer;
+        font-weight: bold;
+        background-color: #FFFFFF;
+    }
+    
+    .pay-method-option:hover {
+        border-color: #C80A1E;
+    }
+    
+    .pay-method-option.selected {
+        border: 2px solid #C80A1E;
+        background: url('https://pics.taobaocdn.com/img/gui/icon_selected.gif') no-repeat right bottom;
+    }
+    
+    .checkout-footer-bar {
+        background-color: #FFFDF0;
+        border: 1px solid #FFCC66;
+        padding: 20px;
+        text-align: right;
+        margin-top: 20px;
+    }
+</style>
+
+<h2 style="font-family: 'Microsoft YaHei', '微软雅黑'; color: #333333; margin-top:0;">✍️ 确认订单中心</h2>
+
+<form action="{{ url_for('checkout') }}" method="POST" id="checkout-form">
+    <!-- 1. 收货地址选择 -->
+    <div class="checkout-title">1. 选择收货地址</div>
+    <div class="checkout-section">
+        {% if addresses %}
+            {% for addr in addresses %}
+                <div class="address-card-checkout {% if loop.first %}selected{% endif %}" onclick="selectAddress(this, {{ addr.id }})">
+                    <strong style="font-size:13px;">收货人: {{ addr.name }}</strong> &nbsp;|&nbsp; 
+                    <span>联系电话: {{ addr.phone }}</span> <br>
+                    <span style="color:#666666; margin-top:5px; display:inline-block;">详细收货地址: {{ addr.province }} {{ addr.city }} {{ addr.district }} {{ addr.detail }}</span>
+                </div>
+            {% endfor %}
+            <!-- 隐藏的收货地址ID输入框 -->
+            <input type="hidden" name="address_id" id="selected-address-id" value="{{ addresses[0].id }}">
+            <div style="margin-top:15px;">
+                <a href="{{ url_for('addresses') }}" target="_blank" style="font-weight:bold; text-decoration:underline;">[+] 管理或新增收货地址</a>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 15px; color: #CC0000; font-weight: bold;">
+                ⚠️ 您的收货地址簿为空，请先前往添加地址！<br><br>
+                <a href="{{ url_for('addresses') }}" class="btn-retro" style="font-size:12px;">现在就去添加收货地址</a>
+            </div>
+            <input type="hidden" name="address_id" id="selected-address-id" value="">
+        {% endif %}
+    </div>
+
+    <!-- 2. 结算商品清单 -->
+    <div class="checkout-title">2. 确认商品清单</div>
+    <div class="checkout-section" style="padding:0; border:none;">
+        <table class="retro-table" style="margin-bottom:0;">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">商品图</th>
+                    <th>商品名称</th>
+                    <th style="width: 150px;">规格属性</th>
+                    <th style="width: 100px;">单价</th>
+                    <th style="width: 80px;">数量</th>
+                    <th style="width: 100px;">小计</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                    <tr>
+                        <td>
+                            {% if item.product_id == 1 %}
+                                <img src="/static/images/box1.png" alt="{{ item.name }}" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='https://placehold.co/40x40?text=商品';">
+                            {% elif item.product_id == 2 %}
+                                <img src="/static/images/bag1.png" alt="{{ item.name }}" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='https://placehold.co/40x40?text=商品';">
+                            {% else %}
+                                <img src="/static/images/logo.jpg" alt="{{ item.name }}" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='https://placehold.co/40x40?text=商品';">
+                            {% endif %}
+                        </td>
+                        <td style="text-align: left; padding-left: 15px;">
+                            <strong>{{ item.name }}</strong>
+                        </td>
+                        <td>
+                            <span style="color:#666666;">规格：{{ item.sku_size or '默认' }}</span><br>
+                            <span style="color:#666666;">颜色：{{ item.sku_color or '默认' }}</span>
+                        </td>
+                        <td>￥{{ "%.2f"|format(item.price) }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td><span style="color:#C80A1E; font-weight:bold;">￥{{ "%.2f"|format(item.price * item.quantity) }}</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 3. 选择支付方式 -->
+    <div class="checkout-title">3. 选择支付方式</div>
+    <div class="checkout-section">
+        <div class="pay-method-option selected" onclick="selectPayMethod(this, 'alipay')">
+            💳 支付宝支付
+        </div>
+        <div class="pay-method-option" onclick="selectPayMethod(this, 'wechat')">
+            🟢 微信支付
+        </div>
+        <div class="pay-method-option" onclick="selectPayMethod(this, 'cod')">
+            📦 货到付款 (COD)
+        </div>
+        <!-- 隐藏的支付方式输入框 -->
+        <input type="hidden" name="payment_method" id="selected-payment-method" value="alipay">
+    </div>
+
+    <!-- 结算条 -->
+    <div class="checkout-footer-bar">
+        <div style="float:left; line-height: 40px; text-align:left; color:#666666;">
+            <strong>鲜时家保鲜承诺：</strong>食品级加厚材质，绿色环保，安心守护。
+        </div>
+        <div style="float:right;">
+            <span style="font-size: 14px; font-weight: bold; margin-right: 20px;">
+                实付款总金额：
+                <span style="font-size: 24px; color: #C80A1E; font-weight: bold; font-family: Arial;">￥{{ "%.2f"|format(total_amount) }}</span>
+            </span>
+            {% if addresses %}
+                <button type="submit" class="btn-retro" style="font-size:18px; padding: 10px 40px; vertical-align: middle;">确认订单，提交结算</button>
+            {% else %}
+                <button type="button" class="btn-retro-disabled" style="font-size:18px; padding: 10px 40px; vertical-align: middle;" disabled>请先添加收货地址</button>
+            {% endif %}
+        </div>
+        <div style="clear:both;"></div>
+    </div>
+</form>
+
+<script>
+    // 点选地址
+    function selectAddress(element, addrId) {
+        $(".address-card-checkout").removeClass("selected");
+        $(element).addClass("selected");
+        $("#selected-address-id").val(addrId);
+    }
+
+    // 点选支付方式
+    function selectPayMethod(element, method) {
+        $(".pay-method-option").removeClass("selected");
+        $(element).addClass("selected");
+        $("#selected-payment-method").val(method);
+    }
+</script>
+{% endblock %}

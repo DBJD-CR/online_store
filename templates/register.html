@@ -1,0 +1,78 @@
+{% extends 'auth_base.html' %}
+
+{% block auth_title %}免费注册{% endblock %}
+{% block auth_header %}免费注册 鲜时家会员{% endblock %}
+{% block auth_action %}{{ url_for('register') }}{% endblock %}
+
+{% block extra_fields %}
+<div class="form-group">
+    <div class="form-label">确认密码</div>
+    <div class="form-input-container">
+        <input type="password" id="confirm_password" class="form-input" required placeholder="请再次输入密码">
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="form-label">管理员码</div>
+    <div class="form-input-container">
+        <!-- 商家特有的邀请激活码输入框，普通买家不填写即为普通用户 -->
+        <input type="text" name="admin_code" id="admin_code" class="form-input" placeholder="非必填。商家注册请填激活邀请码">
+    </div>
+</div>
+
+<!-- 经典的 10 年代多滚动条式“鲜时家商城服务条款与用户保密协议”文本区域 -->
+<div class="form-group" style="margin-top: 10px;">
+    <div class="form-label">服务协议</div>
+    <div class="form-input-container">
+        <div style="width: 200px; height: 90px; border: 1px solid #CCCCCC; overflow-y: scroll; padding: 8px; background-color: #FAFAFA; font-size: 10px; line-height: 14px; color: #777777; text-align: left; box-sizing: border-box;">
+            <strong>【鲜时家网上商城服务使用协议与隐私保护条款】</strong><br>
+            版本更新日期：2026年05月30日<br>
+            版本生效日期：2026年05月30日<br><br>
+            <strong>【首部及导言】</strong><br>
+            欢迎您注册成为鲜时家网上商城平台会员！本协议是您与鲜时家网上商城（以下简称“本平台”或“商城”）之间就您注册、登录、选购商品及享受售后保鲜技术指导所订立的契约。在您勾选同意并点击注册前，请您务必仔细阅读、充分理解各条款内容。<br><br>
+            <strong>第一条 会员账号注册与安全保密责任</strong><br>
+            1.1 会员账号是您在鲜时家唯一的身份标识。您在注册时所填写的用户名、密码等核心信息，应当严格符合国家互联网安全规范。平台入口配备了由前端 Canvas 实时算法绘制生成的扭曲干扰防爬虫验证码，以阻挡恶意注册行为。<br>
+            1.2 用户在注册成功后有义务妥善保管好个人会员账号密码。凡是通过您的账号密码登录本商城所进行的一切购物车结算、地址变更、模拟支付提交等行为，平台均视为您本人的真实意愿操作，由您自行承担法律后果。<br><br>
+            <strong>第二条 交易规范与配送售后说明</strong><br>
+            2.1 用户在本商城中选购“日期记忆保鲜盒”与“日期记忆保鲜袋”商品时，应当根据需求点选对应 SKU（大号/小号）。系统将实时检查当前库存上限，超出库存或处于库存不足状态的商品将无法继续添加结算。<br>
+            2.2 凡是通过本平台收银台完成模拟扫码确认并成功提交的订单，平台物流系统均会将其自动转入配货流程。对于在线收银台支付完毕的订单以及货到付款订单，商家后台在处理完毕后，会实时录入真实的快递跟踪单号。买家收到货品后，应及时点击“确认收货”以完结交易。<br><br>
+            <strong>第三条 专利保鲜科技与安全防范义务</strong><br>
+            3.1 鲜时家全系保鲜盒采用顶盖独创日期月/日拨盘记忆模块，保鲜袋配有大面积涂层手写区。用户有义务在储存新鲜瓜果蔬菜、便当冷冻或备餐时，根据存储当天时间校准刻度，防范食品过期发霉，守护家人每日健康。<br>
+            3.2 鲜时家产品精选食品级无害PP与PE材质，支持在-20℃至120℃环境下冷冻及加热。但使用微波炉时，请确保取出顶盖以防内部气压膨胀产生变形。如因用户私自违规微波炉加热引起的安全事故，商城对此概不承担连带责任。<br><br>
+            <strong>第四条 协议变更、管辖与免责条款</strong><br>
+            4.1 本商城保留根据业务调整或学校交差演示需求，随时修改和完善本服务协议的权利，修改后的协议在注册界面一经展示即刻生效。<br>
+            4.2 在法律允许的最大范围内，如因服务器升级、数据库并发锁死、网络通信波动或遭遇黑客攻击等非平台主观过错造成的交易记录丢失或系统暂停访问，鲜时家均免于承担经济赔偿责任。<br>
+            4.3 本协议之解释与争议解决均适用中华人民共和国法律。如发生争议，双方应首先开展友好协商，协商不成的，由本平台所在地有管辖权的人民法院诉讼管辖。
+        </div>
+        <div style="margin-top: 8px;">
+            <input type="checkbox" id="agree-protocol" required style="vertical-align: middle; margin: 0 5px 0 0;">
+            <label for="agree-protocol" style="font-weight: bold; cursor: pointer; font-size: 11px; color:#666;">我已阅读并同意以上《服务协议》</label>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 定义注册页面特有的校验
+    function extraValidation() {
+        var password = $("#password").val();
+        var confirmPassword = $("#confirm_password").val();
+        if (password !== confirmPassword) {
+            alert("两次输入的密码不一致！");
+            return false;
+        }
+        
+        // 校验是否勾选了服务协议
+        if (!document.getElementById("agree-protocol").checked) {
+            alert("请先阅读并勾选同意《服务协议》！");
+            return false;
+        }
+        return true;
+    }
+</script>
+{% endblock %}
+
+{% block submit_btn_text %}同意服务协议并注册{% endblock %}
+
+{% block auth_footer_links %}
+已有账号？<a href="{{ url_for('login') }}">立即登录</a>
+{% endblock %}

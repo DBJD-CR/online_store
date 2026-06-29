@@ -1,0 +1,83 @@
+{% extends 'admin_base.html' %}
+
+{% block admin_content %}
+<h2 style="font-family: 'Microsoft YaHei', '微软雅黑'; margin-top:0; color:#333;">📦 商品上架与库存/价格实时修改</h2>
+<p style="color:#666666; margin-bottom: 15px;">此处罗列了商城中所有的商品。商家可随意修改 2 个真实商品的价格与库存，或者查看虚拟障眼商品的售罄/预售状态。修改后前台页面即刻同步生效！</p>
+
+<table class="retro-table">
+    <thead>
+        <tr>
+            <th style="width: 60px;">商品ID</th>
+            <th style="width: 80px;">预览图</th>
+            <th>商品名称</th>
+            <th style="width: 100px;">当前价格 (元)</th>
+            <th style="width: 100px;">当前库存 (件)</th>
+            <th style="width: 100px;">商品类型</th>
+            <th style="width: 100px;">当前状态</th>
+            <th style="width: 180px;">后台操作 (实时同步修改)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+            <tr>
+                <td><strong>{{ product.id }}</strong></td>
+                <td>
+                    {% if product.id == 1 or product.id == 2 %}
+                        <img src="/static/images/logo.jpg" alt="{{ product.name }}" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='https://placehold.co/40x40?text=商品';">
+                    {% else %}
+                        <img src="https://placehold.co/40x40/dddddd/666666?text={{ product.id }}" alt="{{ product.name }}" style="width: 40px; height: 40px; object-fit: cover;">
+                    {% endif %}
+                </td>
+                <td style="text-align: left;">
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}" target="_blank" style="font-weight:bold;">
+                        {{ product.name }}
+                    </a>
+                </td>
+                
+                <form action="{{ url_for('admin_products') }}" method="POST">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <td>
+                        {% if product.is_real == 1 %}
+                            <input type="number" step="0.01" name="price" value="{{ product.price }}" style="width: 70px; text-align: center; border:1px solid #CCCCCC; padding:2px;" required>
+                        {% else %}
+                            <span style="color:#666666;">￥{{ "%.2f"|format(product.price) }}</span>
+                            <input type="hidden" name="price" value="{{ product.price }}">
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.is_real == 1 %}
+                            <input type="number" name="stock" value="{{ product.stock }}" style="width: 70px; text-align: center; border:1px solid #CCCCCC; padding:2px;" required>
+                        {% else %}
+                            <span style="color:#666666;">0 (固定)</span>
+                            <input type="hidden" name="stock" value="0">
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.is_real == 1 %}
+                            <span style="color:#008000; font-weight:bold;">✔ 真实可购</span>
+                        {% else %}
+                            <span style="color:#999999;">✖ 虚拟展示</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.status == 'active' %}
+                            <span style="color:#008000; font-weight:bold;">销售中</span>
+                        {% elif product.status == 'soldout' %}
+                            <span style="color:#CC0000; font-weight:bold;">已售罄</span>
+                        {% else %}
+                            <span style="color:#FF6600; font-weight:bold;">下期预告</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.is_real == 1 %}
+                            <button type="submit" class="btn-retro" style="padding: 3px 10px; font-size:11px; background-color:#FF8000; border-color:#CC6600;">保存修改</button>
+                        {% else %}
+                            <span style="color:#999999; font-size:11px;">(虚拟商品无法编辑)</span>
+                        {% endif %}
+                    </td>
+                </form>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

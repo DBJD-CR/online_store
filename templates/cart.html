@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}我的购物车 - 鲜时家{% endblock %}
+
+{% block content %}
+<style>
+    .cart-empty {
+        background-color: #FFFFFF;
+        border: 1px solid #CCCCCC;
+        padding: 40px;
+        text-align: center;
+    }
+    
+    .qty-select-cart {
+        height: 24px;
+        border: 1px solid #CCCCCC;
+        width: 80px;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+    
+    .qty-btn-cart {
+        float: left;
+        width: 20px;
+        height: 24px;
+        text-align: center;
+        line-height: 24px;
+        background-color: #F0F0F0;
+        cursor: pointer;
+        font-weight: bold;
+        border: none;
+    }
+    
+    .qty-input-cart {
+        float: left;
+        width: 40px;
+        height: 22px;
+        border: none;
+        text-align: center;
+        line-height: 22px;
+        outline: none;
+    }
+    
+    .cart-summary {
+        background-color: #FFFDF0;
+        border: 1px solid #FFCC66;
+        padding: 15px;
+        text-align: right;
+        margin-top: 15px;
+        overflow: hidden;
+    }
+    
+    .cart-summary-price {
+        font-size: 20px;
+        color: #C80A1E;
+        font-weight: bold;
+        font-family: Arial;
+    }
+</style>
+
+<h2 style="font-family: 'Microsoft YaHei', '微软雅黑'; color: #333333; margin-top:0;">🛒 我的购物车</h2>
+
+{% if cart_items %}
+    <table class="retro-table">
+        <thead>
+            <tr>
+                <th style="width: 80px;">商品图</th>
+                <th>商品名称</th>
+                <th style="width: 150px;">规格属性</th>
+                <th style="width: 100px;">单价</th>
+                <th style="width: 120px;">购买数量</th>
+                <th style="width: 100px;">小计</th>
+                <th style="width: 80px;">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+                <tr id="cart-row-{{ item.id }}">
+                    <td>
+                        {% if item.product_id == 1 %}
+                            <img src="/static/images/box1.png" alt="{{ item.name }}" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='https://placehold.co/50x50?text=商品';">
+                        {% elif item.product_id == 2 %}
+                            <img src="/static/images/bag1.png" alt="{{ item.name }}" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='https://placehold.co/50x50?text=商品';">
+                        {% else %}
+                            <img src="/static/images/logo.jpg" alt="{{ item.name }}" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='https://placehold.co/50x50?text=商品';">
+                        {% endif %}
+                    </td>
+                    <td style="text-align: left; padding-left: 15px;">
+                        <a href="{{ url_for('product_detail', product_id=item.product_id) }}" style="font-weight: bold;">
+                            {{ item.name }}
+                        </a>
+                    </td>
+                    <td>
+                        <span style="color:#666666;">规格：{{ item.sku_size or '默认' }}</span><br>
+                        <span style="color:#666666;">颜色：{{ item.sku_color or '默认' }}</span>
+                    </td>
+                    <td>
+                        ￥<span class="item-price" data-price="{{ item.price }}">{{ "%.2f"|format(item.price) }}</span>
+                    </td>
+                    <td>
+                        <div class="qty-select-cart">
+                            <button class="qty-btn-cart" type="button" onclick="changeCartQty({{ item.id }}, -1)">-</button>
+                            <input type="text" class="qty-input-cart" id="qty-input-{{ item.id }}" value="{{ item.quantity }}" readonly>
+                            <button class="qty-btn-cart" type="button" onclick="changeCartQty({{ item.id }}, 1)">+</button>
+                        </div>
+                        <span style="font-size: 10px; color: #999;">库存限制: {{ item.stock }}</span>
+                    </td>
+                    <td>
+                        <span style="color:#C80A1E; font-weight:bold;">￥<span class="item-subtotal" id="subtotal-{{ item.id }}">{{ "%.2f"|format(item.price * item.quantity) }}</span></span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('delete_cart_item', cart_id=item.id) }}" onclick="return confirm('确认从购物车移除该商品吗？');" style="color:#CC0000; font-weight:bold;">删除</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="cart-summary">
+        <div style="float: left; line-height: 35px; color: #666666;">
+            温馨提示：商品库存有限，请尽快进行结算哦。
+        </div>
+        <div style="float: right;">
+            <span style="font-size: 14px; font-weight: bold; margin-right: 20px;">商品总金额：<span class="cart-summary-price">￥<span id="cart-total-amount">0.00</span></span></span>
+            <a href="{{ url_for('checkout') }}" class="btn-retro" style="font-size: 16px; padding: 8px 30px; vertical-align: middle;">去结算中心 ➔</a>
+        </div>
+    </div>
+{% else %}
+    <div class="cart-empty">
+        <p style="font-size: 16px; font-weight: bold; color: #FF6600;">您的购物车内还没有商品噢！</p>
+        <p style="color: #666666; margin-bottom: 20px;">快去看看我们最新推出的日期记忆保鲜系列好物吧！</p>
+        <a href="{{ url_for('index') }}" class="btn-retro">返回商城首页选购</a>
+    </div>
+{% endif %}
+
+<script>
+    // 页面加载时自动计算一次购物车总金额
+    $(document).ready(function() {
+        calculateTotal();
+    });
+
+    // 计算总金额
+    function calculateTotal() {
+        var total = 0.0;
+        $(".item-subtotal").each(function() {
+            total += parseFloat($(this).text());
+        });
+        $("#cart-total-amount").text(total.toFixed(2));
+    }
+
+    // 动态修改购物车数量
+    function changeCartQty(cartId, amt) {
+        var input = $("#qty-input-" + cartId);
+        var currentVal = parseInt(input.val());
+        var newVal = currentVal + amt;
+        
+        if (newVal < 1) return; // 数量最少为1
+        
+        $.ajax({
+            url: "{{ url_for('update_cart_quantity') }}",
+            type: "POST",
+            data: {
+                cart_id: cartId,
+                quantity: newVal
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // 更新输入框内的值
+                    input.val(response.new_quantity);
+                    
+                    // 重新计算该商品小计金额
+                    var price = parseFloat($("#cart-row-" + cartId + " .item-price").attr("data-price"));
+                    var subtotal = price * response.new_quantity;
+                    $("#subtotal-" + cartId).text(subtotal.toFixed(2));
+                    
+                    // 重新计算购物车总金额
+                    calculateTotal();
+                } else {
+                    alert("更新购物车失败：" + response.message);
+                }
+            },
+            error: function() {
+                alert("网络连接故障，请重试！");
+            }
+        });
+    }
+</script>
+{% endblock %}
