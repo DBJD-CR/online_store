@@ -1,97 +1,94 @@
 {% extends 'admin_base.html' %}
+{% from 'macros.html' import order_status_badge %}
+
+{# 
+  鲜时家网上商城 - 商家后台订单管理及手动发货控制台
+  主要功能：罗列整个商城产生的所有交易记录，对处于“待发货 (pending_ship)”状态下的订单允许手动输入运单号并提交发货，
+  使其转为“待收货 (pending_recv)”，完成后台管理闭环。
+#}
 
 {% block admin_content %}
-<h2 style="font-family: 'Microsoft YaHei', '微软雅黑'; margin-top:0; color:#333;">🧾 买家交易订单管理与手动发货控制台</h2>
-<p style="color:#666666; margin-bottom: 15px;">在此处，您可以实时监督所有消费者的订单交易进度。对于已付款/待发货的订单，点击右侧的<b>“去发货”</b>按钮并填写快递运单号，即可将前台订单推进到“待收货”状态，实现完美演示闭环！</p>
+<h2 class="admin-page-title">🧾 买家交易订单管理与手动发货控制台</h2>
+<p class="admin-page-desc">在此处，您可以实时监督所有消费者的订单交易进度。对于已付款/待发货的订单，点击右侧的<b>“去发货”</b>按钮并填写快递运单号，即可将前台订单推进到“待收货”状态，实现完美演示闭环！</p>
 
 {% if orders %}
+    <!-- 循环呈现每一个订单交易卡片 -->
     {% for order in orders %}
-        <div style="background-color: #F7F7F7; border: 1px solid #CCCCCC; padding: 8px 12px; margin-top: 15px; font-size:12px; overflow:hidden;">
-            <div style="float:left;">
-                <strong>订单流水号：</strong><span style="font-family:Consolas; font-weight:bold;">{{ order.order_no }}</span> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        <div class="order-header-info">
+            <div class="order-header-left">
+                <strong>订单流水号：</strong><span class="order-no text-bold">{{ order.order_no }}</span> &nbsp;&nbsp;|&nbsp;&nbsp;
                 <strong>下单时间：</strong>{{ order.created_at|datetime_format }} &nbsp;&nbsp;|&nbsp;&nbsp;
-                <strong>买家收货人：</strong><span style="color:#C80A1E; font-weight:bold;">{{ order.address_name }}</span>（{{ order.address_phone }}）
+                <strong>买家收货人：</strong><span class="text-brand text-bold">{{ order.address_name }}</span>（{{ order.address_phone }}）
             </div>
-            <div style="float:right;">
+            <div class="order-header-right">
                 <strong>当前状态：</strong>
-                {% if order.status == 'pending_pay' %}
-                    <span class="order-status-badge status-pay">买家待付款</span>
-                {% elif order.status == 'pending_ship' %}
-                    <span class="order-status-badge status-ship">待发货 (待录入单号)</span>
-                {% elif order.status == 'pending_recv' %}
-                    <span class="order-status-badge status-recv">已发货 (待买家收货)</span>
-                {% else %}
-                    <span class="order-status-badge status-completed">✔ 交易成功完成</span>
-                {% endif %}
+                {{ order_status_badge(order.status, is_admin=True) }}
             </div>
         </div>
-        
-        <table class="retro-table" style="margin-top:0; border-top:none;">
+
+        <table class="retro-table order-table">
             <thead>
                 <tr>
-                    <th style="width: 250px; border-top:none;">收货地址详情</th>
-                    <th style="border-top:none;">购买商品明细</th>
-                    <th style="width: 100px; border-top:none;">实付总额</th>
-                    <th style="width: 100px; border-top:none;">支付方式</th>
-                    <th style="width: 180px; border-top:none;">物流快递控制 (核心操作)</th>
+                    <th class="col-address">收货地址详情</th>
+                    <th class="col-items">购买商品明细</th>
+                    <th class="col-price">实付总额</th>
+                    <th class="col-pay-method">支付方式</th>
+                    <th class="col-shipping">物流快递控制 (核心操作)</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <!-- 1. 收货地址 -->
-                    <td style="text-align: left; padding: 10px; font-size: 11px; line-height: 16px;">
+                    <!-- 收货地址快照 -->
+                    <td class="cell-address">
                         {{ order.address_detail }}
                     </td>
-                    
-                    <!-- 2. 商品明细 -->
-                    <td style="text-align: left; padding: 10px;">
-                        {% for item in order.items %}
-                            <div style="margin-bottom: 5px; border-bottom: 1px dashed #EEEEEE; padding-bottom: 3px;">
+
+                    <!-- 购买多件商品时的明细列表 -->
+                    <td class="cell-items">
+                        {% for item in order.order_items %}
+                            <div class="admin-order-item">
                                 <strong>{{ item.product_name }}</strong> <br>
-                                <span style="color:#666666; font-size:11px;">规格: {{ item.sku_size }} | 颜色: {{ item.sku_color }}</span><br>
-                                <span style="color:#C80A1E;">￥{{ "%.2f"|format(item.price) }}</span> x <strong>{{ item.quantity }}</strong>
+                                <span class="sku-info text-11">规格: {{ item.sku_size }} | 颜色: {{ item.sku_color }}</span><br>
+                                <span class="text-price">￥{{ "%.2f"|format(item.price) }}</span> x <strong>{{ item.quantity }}</strong>
                             </div>
                         {% endfor %}
                     </td>
-                    
-                    <!-- 3. 总额 -->
+
+                    <!-- 订单实付额 -->
                     <td>
-                        <strong style="color:#C80A1E; font-size: 14px; font-family: Arial;">￥{{ "%.2f"|format(order.total_amount) }}</strong>
+                        <strong class="order-amount">￥{{ "%.2f"|format(order.total_amount) }}</strong>
                     </td>
-                    
-                    <!-- 4. 支付方式 -->
+
+                    <!-- 支付通道 -->
                     <td>
-                        {% if order.payment_method == 'alipay' %}
-                            支付宝
-                        {% elif order.payment_method == 'wechat' %}
-                            微信支付
-                        {% else %}
-                            货到付款
-                        {% endif %}
+                        {{ order.payment_method|payment_method_name }}
                     </td>
-                    
-                    <!-- 5. 发货表单与快递单号录入 -->
+
+                    <!-- 物流状态与手动发货的复杂操作区域 -->
                     <td>
                         {% if order.status == 'pending_pay' %}
-                            <span style="color:#CC0000; font-weight:bold;">等待买家在线支付...</span>
+                            <!-- 未付款订单不可发货，商家需静待 -->
+                            <span class="text-danger text-bold">等待买家在线支付...</span>
                         {% elif order.status == 'pending_ship' %}
-                            <!-- 核心发货表单 -->
-                            <form action="{{ url_for('admin_orders') }}" method="POST" style="margin:0;">
+                            <!-- 待发货订单，展示手动输入运单号并提交的表单 -->
+                            <form action="{{ url_for('admin_orders') }}" method="POST" class="shipping-form">
                                 <input type="hidden" name="action" value="ship">
                                 <input type="hidden" name="order_id" value="{{ order.id }}">
-                                
-                                <div style="margin-bottom: 5px;">
-                                    <input type="text" name="tracking_no" placeholder="手动录入假快递单号" style="width: 150px; height: 22px; padding: 0 5px; border:1px solid #CCCCCC;" required>
+
+                                <div class="margin-bottom-5">
+                                    <input type="text" name="tracking_no" placeholder="手动录入假快递单号" class="form-input-md" required>
                                 </div>
-                                <button type="submit" class="btn-retro" style="padding: 4px 15px; font-size: 11px;">确认手动发货</button>
+                                <button type="submit" class="btn-retro btn-xs">确认手动发货</button>
                             </form>
                         {% elif order.status == 'pending_recv' %}
-                            <span style="color:#0066CC; font-weight:bold;">已发货成功！</span><br>
-                            <span style="font-size:11px; color:#666666;">快递单号：</span><br>
-                            <span style="font-family:Consolas; font-weight:bold; color:#0066CC;">{{ order.tracking_no }}</span>
+                            <!-- 已发货，展示当前运单号，买家尚未点击确认收货 -->
+                            <span class="text-info text-bold">已发货成功！</span><br>
+                            <span class="text-11 text-muted">快递单号：</span><br>
+                            <span class="order-no text-info">{{ order.tracking_no }}</span>
                         {% else %}
-                            <span style="color:#008000; font-weight:bold;">✔ 订单交易已完结</span><br>
-                            <span style="font-size:11px; color:#666666;">运单号：{{ order.tracking_no }}</span>
+                            <!-- 交易完结 -->
+                            <span class="text-success text-bold">✔ 订单交易已完结</span><br>
+                            <span class="text-11 text-muted">运单号：{{ order.tracking_no }}</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -99,9 +96,10 @@
         </table>
     {% endfor %}
 {% else %}
-    <div style="background-color: #FFFFFF; border: 1px solid #CCCCCC; padding: 40px; text-align: center;">
-        <p style="font-size: 14px; font-weight: bold; color: #999999;">目前整个商城系统还没有任何买家下单的记录哦喵~</p>
-        <p style="color: #666666;">您可以点击顶部的“预览前台商城门户”去前台注册一个账号、填写收货地址并下一单，然后再返回本后台体验订单手动发货等流程！</p>
+    <!-- 整个商城在无下单数据时的空状态友好引导 -->
+    <div class="empty-state">
+        <p class="empty-state-title">目前整个商城系统还没有任何买家下单的记录哦喵~</p>
+        <p class="empty-state-tip">您可以点击顶部的“预览前台商城门户”去前台注册一个账号、填写收货地址并下一单，然后再返回本后台体验订单手动发货等流程！</p>
     </div>
 {% endif %}
 {% endblock %}

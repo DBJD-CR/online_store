@@ -1,12 +1,18 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import product_image, product_price_range %}
+
+{# 
+  鲜时家网上商城 - 首页模板
+  主要功能：展示顶部跑马灯公告、巨幅产品促销轮播图、左侧选购中心导航与保鲜科普、
+  右侧商品格子列表。包含已售罄、下期预告等状态判定。
+#}
 
 {% block title %}首页 - 10年代经典日期记忆保鲜系列{% endblock %}
 
 {% block content %}
-<!-- 复古风巨幅 Banner (轮播图) -->
 <style>
     .banner-container {
-        width: 1170px; /* 随着 1200px 容器按比例变大，减去 content 容器 padding */
+        width: 1170px;
         height: 340px;
         position: relative;
         overflow: hidden;
@@ -15,27 +21,26 @@
         margin-bottom: 20px;
     }
 
-    /* 经典无缝循环水平轮播滑轨 */
     .banner-wrapper {
         position: absolute;
-        width: 3510px; /* 3张 banner 宽度之和: 1170px * 3 (Slide 1 + Slide 2 + 复制的 Slide 1) */
+        width: 3510px;
         height: 100%;
         left: 0;
         top: 0;
     }
-    
+
     .banner-slide {
         float: left;
         width: 1170px;
         height: 100%;
         position: relative;
     }
-    
+
     .banner-content {
         padding: 50px 80px;
         width: 500px;
     }
-    
+
     .banner-title {
         font-family: "Microsoft YaHei", "微软雅黑";
         font-size: 36px;
@@ -43,20 +48,20 @@
         font-weight: bold;
         margin-bottom: 10px;
     }
-    
+
     .banner-subtitle {
         font-size: 18px;
         color: #333333;
         margin-bottom: 20px;
         line-height: 26px;
     }
-    
+
     .banner-features {
         font-size: 14px;
         color: #666666;
         margin-bottom: 25px;
     }
-    
+
     .banner-features span {
         margin-right: 15px;
         background-color: #FFECEE;
@@ -64,7 +69,7 @@
         padding: 3px 8px;
         border: 1px solid #FFA3A9;
     }
-    
+
     .banner-img-mock {
         position: absolute;
         right: 50px;
@@ -79,7 +84,12 @@
         font-weight: bold;
         color: #C80A1E;
         box-shadow: 5px 5px 0px #CCCCCC;
-        overflow: hidden; /* 防止图片溢出框 */
+        overflow: hidden;
+    }
+
+    .banner-img-mock-orange {
+        border-color: #FF6600;
+        box-shadow: 5px 5px 0px #FFD8A6;
     }
 
     .banner-dots {
@@ -89,7 +99,7 @@
         transform: translateX(-50%);
         z-index: 10;
     }
-    
+
     .banner-dots span {
         display: inline-block;
         width: 12px;
@@ -99,29 +109,27 @@
         margin: 0 5px;
         cursor: pointer;
     }
-    
+
     .banner-dots span.active {
         background-color: #C80A1E;
     }
-    
-    /* 侧栏分类与公告结构 - 1200px 对应比例调整 */
+
     .left-col {
         float: left;
         width: 260px;
     }
-    
+
     .right-col {
         float: right;
         width: 890px;
     }
-    
-    /* 复古分类列表 */
+
     .sidebar-box {
         border: 1px solid #CCCCCC;
         background-color: #FFFFFF;
         margin-bottom: 15px;
     }
-    
+
     .sidebar-title {
         background-color: #F2F2F2;
         border-bottom: 1px solid #CCCCCC;
@@ -132,65 +140,78 @@
         color: #C80A1E;
         font-size: 13px;
     }
-    
+
     .sidebar-list {
         list-style: none;
         margin: 0;
         padding: 5px 0;
     }
-    
+
     .sidebar-list li {
         padding: 8px 15px;
         border-bottom: 1px dashed #EEEEEE;
     }
-    
+
     .sidebar-list li:last-child {
         border-bottom: none;
     }
-    
+
     .sidebar-list li a {
         color: #333333;
         font-weight: bold;
     }
-    
-    /* 商品陈列柜 */
+
+    .sidebar-content {
+        padding: 10px;
+        line-height: 18px;
+    }
+
+    .service-title {
+        color: #C80A1E;
+        font-weight: bold;
+    }
+
+    .disabled-link {
+        color: #999999;
+    }
+
     .product-grid {
         overflow: hidden;
     }
-    
+
     .product-card {
         float: left;
-        width: 275px; /* 轻微缩减宽度，给浮动留出安全空余，防止大屏浏览器高DPI下把第三个卡片挤兑下去 */
+        width: 275px;
         background-color: #FFFFFF;
         border: 1px solid #DDDDDD;
-        margin-right: 25px; /* 275 * 3 + 25 * 2 = 825 + 50 = 875px，在 890px 空间中极其安全 */
+        margin-right: 25px;
         margin-bottom: 20px;
         position: relative;
         padding: 10px 0;
         text-align: center;
         height: 340px;
-        box-sizing: border-box; /* 强力约束大小，不让内边距和边框撑爆宽度 */
+        box-sizing: border-box;
     }
-    
+
     .product-card:nth-child(3n) {
-        margin-right: 0 !important; /* 强制清空第三个卡片的右边距，使其正好贴在右边缘 */
+        margin-right: 0 !important;
     }
-    
+
     .product-img-box {
-        width: 220px; /* 稍作加大以适配 280px 宽度的卡片 */
+        width: 220px;
         height: 220px;
         margin: 0 auto 10px auto;
         position: relative;
         background-color: #FAFAFA;
         border: 1px solid #EEEEEE;
     }
-    
+
     .product-img-box img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-    
+
     .product-title {
         padding: 0 10px;
         height: 36px;
@@ -199,25 +220,29 @@
         margin-bottom: 8px;
         font-size: 12px;
     }
-    
+
+    .product-title a {
+        font-weight: bold;
+        color: #333333;
+    }
+
     .product-price-box {
         margin-bottom: 8px;
     }
-    
+
     .product-price {
         color: #C80A1E;
         font-size: 16px;
         font-weight: bold;
         font-family: Verdana, Arial;
     }
-    
+
     .product-stock {
         color: #666666;
         font-size: 11px;
         margin-left: 5px;
     }
-    
-    /* 售罄与预告印章样式 */
+
     .badge-stamp {
         position: absolute;
         top: 60px;
@@ -231,54 +256,55 @@
         z-index: 10;
         text-shadow: 1px 1px 0px #FFFFFF;
     }
-    
+
     .badge-soldout {
         border-color: #CC0000;
         color: #CC0000;
         background-color: rgba(255, 240, 240, 0.9);
     }
-    
+
     .badge-preview {
         border-color: #FF6600;
         color: #FF6600;
         background-color: rgba(255, 248, 240, 0.9);
     }
-    
-    /* 模糊/马赛克效果 */
+
     .mosaic-blur {
         filter: blur(5px) grayscale(80%);
         opacity: 0.6;
     }
 </style>
 
-<!-- 顶部跑马灯通知 -->
+<!-- 用宏指令封装轮播幻灯片1，减少重复 HTML 代码 -->
+{% macro banner_slide_1(slide_id) %}
+<div class="banner-slide" id="{{ slide_id }}">
+    <div class="banner-content">
+        <div class="banner-title">日期记忆保鲜盒</div>
+        <div class="banner-subtitle">防过期、防串味、防渗漏，守护食材的第一道防线！</div>
+        <div class="banner-features">
+            <span>手动日期拨盘</span>
+            <span>食品级安全PP</span>
+            <span>冰箱超强叠放</span>
+        </div>
+        <a href="{{ url_for('product_detail', product_id=1) }}" class="btn-retro btn-banner">立即抢购 ➔</a>
+    </div>
+    <div class="banner-img-mock">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="img-fill" onerror="this.style.display='none'; this.parentElement.innerHTML='鲜时家 LOGO';">
+    </div>
+</div>
+{% endmacro %}
+
+<!-- 顶部跑马灯公告滚动栏 -->
 <div class="marquee-container">
     <marquee scrollamount="3">📢 鲜时家新品重磅上架！【日期记忆保鲜盒】与【日期记忆保鲜袋】火热销售中！自带顶盖日期拨盘，拒绝过期，守护家人食材健康！支持极速发货，安全支付！</marquee>
 </div>
 
-<!-- 经典巨幅轮播图 Banner -->
+<!-- 经典三屏无缝轮播图容器 -->
 <div class="banner-container">
-    <!-- 水平滑轨滑块包裹容器 -->
     <div class="banner-wrapper" id="banner-slider">
-        <!-- Slide 1 -->
-        <div class="banner-slide" id="slide-1">
-            <div class="banner-content">
-                <div class="banner-title">日期记忆保鲜盒</div>
-                <div class="banner-subtitle">防过期、防串味、防渗漏，守护食材的第一道防线！</div>
-                <div class="banner-features">
-                    <span>手动日期拨盘</span>
-                    <span>食品级安全PP</span>
-                    <span>冰箱超强叠放</span>
-                </div>
-                <a href="/product/1" class="btn-retro" style="font-size:14px; padding:8px 25px;">立即抢购 ➔</a>
-            </div>
-            <!-- 页面Logo作为Banner图占位，保证视觉美观 -->
-            <div class="banner-img-mock">
-                <img src="/static/images/logo.jpg" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='鲜时家 LOGO';">
-            </div>
-        </div>
-        
-        <!-- Slide 2 -->
+        {{ banner_slide_1('slide-1') }}
+
+        <!-- 幻灯片2：日期保鲜袋大促宣传 -->
         <div class="banner-slide" id="slide-2">
             <div class="banner-content">
                 <div class="banner-title">日期记忆保鲜袋</div>
@@ -288,86 +314,71 @@
                     <span>加厚双骨拉链</span>
                     <span>大号/小号规格</span>
                 </div>
-                <a href="/product/2" class="btn-retro" style="font-size:14px; padding:8px 25px; background-color:#FF6600; border-color:#E65C00;">去瞧瞧 ➔</a>
+                <a href="{{ url_for('product_detail', product_id=2) }}" class="btn-retro btn-banner btn-banner-orange">去瞧瞧 ➔</a>
             </div>
-            <div class="banner-img-mock" style="border-color:#FF6600; box-shadow: 5px 5px 0px #FFD8A6; overflow: hidden; background-color: #FFFFFF;">
-                <img src="/static/images/wheel.png" alt="日期轮盘" style="width: 100%; height: 100%; object-fit: contain;">
+            <div class="banner-img-mock banner-img-mock-orange">
+                <img src="{{ url_for('static', filename='images/wheel.png') }}" alt="日期轮盘" class="img-fill-contain">
             </div>
         </div>
 
-        <!-- 额外复制 Slide 1 用于实现无缝首尾相接、只往左边走循环轮播 -->
-        <div class="banner-slide" id="slide-1-clone">
-            <div class="banner-content">
-                <div class="banner-title">日期记忆保鲜盒</div>
-                <div class="banner-subtitle">防过期、防串味、防渗漏，守护食材的第一道防线！</div>
-                <div class="banner-features">
-                    <span>手动日期拨盘</span>
-                    <span>食品级安全PP</span>
-                    <span>冰箱超强叠放</span>
-                </div>
-                <a href="/product/1" class="btn-retro" style="font-size:14px; padding:8px 25px;">立即抢购 ➔</a>
-            </div>
-            <div class="banner-img-mock">
-                <img src="/static/images/logo.jpg" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='鲜时家 LOGO';">
-            </div>
-        </div>
+        <!-- 克隆第一张幻灯片，用于实现无缝循环回滚过渡 -->
+        {{ banner_slide_1('slide-1-clone') }}
     </div>
-    
-    <!-- Banner 控制点 -->
+
+    <!-- 轮播指示小圆点 -->
     <div class="banner-dots">
         <span class="active" onclick="switchBanner(1)"></span>
         <span onclick="switchBanner(2)"></span>
     </div>
 </div>
 
-<!-- 侧栏与商品列表区 -->
+<!-- 左侧双栏布局：分类中心与保鲜科普、服务承诺面板 -->
 <div class="left-col">
-    <!-- 侧栏分类 -->
     <div class="sidebar-box">
         <div class="sidebar-title">✦ 选购中心</div>
         <ul class="sidebar-list">
             <li><a href="#" onclick="alert('这就是我们的全部商品分类啦！'); return false;">日期记忆保鲜盒 (热卖)</a></li>
             <li><a href="#" onclick="alert('这就是我们的全部商品分类啦！'); return false;">日期记忆保鲜袋 (推荐)</a></li>
-            <li><a href="#" onclick="alert('即将到来！下期预告敬请期待！'); return false;" style="color:#999999;">智能真空封口机系列</a></li>
-            <li><a href="#" onclick="alert('即将到来！下期预告敬请期待！'); return false;" style="color:#999999;">多功能食品密封夹系列</a></li>
-            <li><a href="#" onclick="alert('即将到来！下期预告敬请期待！'); return false;" style="color:#999999;">硅胶拉伸保鲜膜系列</a></li>
-            <li><a href="#" onclick="alert('即将到来！下期预告敬请期待！'); return false;" style="color:#999999;">智能控温恒温碗系列</a></li>
+            <li><a href="#" onclick="alert('即将到来！下期预告敬请期待！'); return false;" class="disabled-link">智能真空封口机系列</a></li>
+            <li><a href="#" onclick="alert('即将到来！下期预告敬请期待！'); return false;" class="disabled-link">多功能食品密封夹系列</a></li>
+            <li><a href="#" onclick="alert('即将到来！下期预告敬请期待！'); return false;" class="disabled-link">硅胶拉伸保鲜膜系列</a></li>
+            <li><a href="#" onclick="alert('即将到来！下期预告敬请期待！'); return false;" class="disabled-link">智能控温恒温碗系列</a></li>
         </ul>
     </div>
-    
-    <!-- 侧栏商城公告 -->
+
     <div class="sidebar-box">
         <div class="sidebar-title">✦ 鲜时家小课堂</div>
-        <div style="padding:10px; line-height:18px;">
+        <div class="sidebar-content">
             <strong>为什么需要日期记忆？</strong><br>
             冰箱里的食物经常放着放着就忘了，导致过期发霉。鲜时家专利<b>“日期记忆”</b>拨盘，放进冰箱前转一下日期，什么时候储存的一目了然！轻松防过期、防忘吃！
         </div>
     </div>
 
-    <!-- 侧栏服务承诺，丰富左侧导航内容 -->
     <div class="sidebar-box">
         <div class="sidebar-title">✦ 鲜时家服务承诺</div>
-        <div style="padding:10px; line-height:20px;">
-            <span style="color:#C80A1E; font-weight:bold;">🚚 全国包邮服务</span><br>
+        <div class="sidebar-content line-height-20">
+            <span class="service-title">🚚 全国包邮服务</span><br>
             全场满 0 元即享顺丰/中通包邮！<br>
-            <span style="color:#C80A1E; font-weight:bold;">🛡️ 食品级安全材质</span><br>
+            <span class="service-title">🛡️ 食品级安全材质</span><br>
             经权威机构检测，100%不含双酚A，安全耐用！<br>
-            <span style="color:#C80A1E; font-weight:bold;">📦 24小时内闪电发货</span><br>
+            <span class="service-title">📦 24小时内闪电发货</span><br>
             每日16:00前订单，一律当天配发！
         </div>
     </div>
 </div>
 
+<!-- 右侧商品格子区：渲染 6 宫格卡片 -->
 <div class="right-col">
-    <div style="border-bottom: 2px solid #C80A1E; padding-bottom: 5px; margin-bottom: 15px; overflow:hidden;">
-        <span style="font-size: 16px; font-weight: bold; color: #C80A1E; float:left;">🌟 鲜时家热门推荐（日期保鲜专场）</span>
-        <span style="float:right; color:#666666;">2010年代精品国货 · 正品保证</span>
+    <div class="section-header">
+        <span class="section-title">🌟 鲜时家热门推荐（日期保鲜专场）</span>
+        <span class="section-subtitle">2010年代精品国货 · 正品保证</span>
     </div>
-    
+
     <div class="product-grid">
         {% for product in products %}
+            <!-- 3列式排版下的商品单卡 -->
             <div class="product-card">
-                <!-- 售罄/下期预告障眼法效果 -->
+                <!-- 针对虚拟商品渲染已售罄/下期预告印章 -->
                 {% if product.is_real == 0 %}
                     {% if product.status == 'soldout' %}
                         <div class="badge-stamp badge-soldout">已售罄</div>
@@ -375,42 +386,36 @@
                         <div class="badge-stamp badge-preview">下期预告</div>
                     {% endif %}
                 {% endif %}
-                
+
+                <!-- 商品主图展示，虚拟展示商品应用 mosaic-blur 毛玻璃马赛克模糊滤镜 -->
                 <div class="product-img-box {% if product.is_real == 0 %}mosaic-blur{% endif %}">
-                    {% if product.id == 1 %}
-                        <!-- 真实商品1图 -->
-                        <img src="/static/images/box1.png" alt="{{ product.name }}" onerror="this.src='https://placehold.co/200x200?text=记忆保鲜盒';">
-                    {% elif product.id == 2 %}
-                        <!-- 真实商品2图 -->
-                        <img src="/static/images/bag1.jpg" alt="{{ product.name }}" onerror="this.src='https://placehold.co/200x200?text=记忆保鲜袋';">
+                    {% if product.id == 1 or product.id == 2 %}
+                        {{ product_image(product.id, size='grid', alt=product.name) }}
                     {% else %}
-                        <!-- 虚拟商品的占位图 -->
                         <img src="https://placehold.co/200x200/dddddd/666666?text={{ product.name }}" alt="{{ product.name }}">
                     {% endif %}
                 </div>
-                
+
+                <!-- 商品标题链接 -->
                 <div class="product-title">
-                    <a href="{{ url_for('product_detail', product_id=product.id) }}" style="font-weight: bold; color: #333;">
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}">
                         {{ product.name }}
                     </a>
                 </div>
-                
+
+                <!-- 价格及库存容量显示区 -->
                 <div class="product-price-box">
-                    {% if product.id == 1 %}
-                        <span class="product-price">￥9.90 - ￥12.90</span>
-                    {% elif product.id == 2 %}
-                        <span class="product-price">￥5.50 - ￥7.70</span>
-                    {% else %}
-                        <span class="product-price">￥{{ "%.2f"|format(product.price) }}</span>
-                    {% endif %}
-                    
+                    <!-- 调用全局宏解析展现多规格价格区间 -->
+                    <span class="product-price">{{ product_price_range(product) }}</span>
+
                     {% if product.is_real == 1 %}
                         <span class="product-stock">(剩余 {{ product.stock }} 件)</span>
                     {% else %}
-                        <span class="product-stock" style="color:#CC0000;">(无法购买)</span>
+                        <span class="product-stock text-danger">(无法购买)</span>
                     {% endif %}
                 </div>
-                
+
+                <!-- 下方交互购买动作按钮 -->
                 <div>
                     {% if product.is_real == 1 and product.stock > 0 %}
                         <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn-retro">立即抢购</a>
@@ -424,12 +429,16 @@
 </div>
 
 <script>
-    // 10年代无缝单向向左循环滚动轮播图逻辑喵！
     var currentSlide = 1;
-    var totalSlides = 2; // 真实的幻灯片数量
-    var slideWidth = 1170; // 每张幻灯片宽度
+    var totalSlides = 2;
+    var slideWidth = 1170;
     var isAnimating = false;
 
+    /**
+     * 轮播图幻灯片动画切换。
+     * @param {number} index - 目标切换至第几张幻灯片
+     * @param {boolean} instant - 是否立即跳跃式切换（无过渡动画，用于重置边界克隆体）
+     */
     function switchBanner(index, instant) {
         if (isAnimating) return;
         isAnimating = true;
@@ -437,52 +446,47 @@
         var targetLeft = -(index - 1) * slideWidth;
 
         if (instant) {
-            // 无动画瞬间归位
             $("#banner-slider").css({
                 "transition": "none",
                 "left": targetLeft + "px"
             });
             isAnimating = false;
         } else {
-            // 带动画过渡滑动
             $("#banner-slider").css({
                 "transition": "left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
                 "left": targetLeft + "px"
             });
-            
-            // 动画结束后释放锁定
+
             setTimeout(function() {
                 isAnimating = false;
-                
-                // 如果当前滑动到了克隆的幻灯片（也就是在屏幕上看起来是第一张，但实际上是索引 3）
+
+                // 若滑动切换到了第 3 张（即第 1 张的克隆体），则在动画结束后闪现复位回真实的第 1 张
                 if (index === 3) {
-                    // 瞬间将 left 属性重置为 0（代表真实的第一张），达到无缝无感的单向往左循环效果喵！
                     switchBanner(1, true);
                     currentSlide = 1;
                 }
             }, 600);
         }
 
-        // 更新小圆点的高亮状态
+        // 同步修改底部小圆圈的状态高亮
         var dotIndex = index === 3 ? 0 : index - 1;
         $(".banner-dots span").removeClass("active");
         $(".banner-dots span").eq(dotIndex).addClass("active");
     }
 
-    // 小圆点手动点击切换
+    // 圆点指示符绑定点击事件
     $(".banner-dots span").click(function() {
         var clickedIndex = $(this).index() + 1;
         switchBanner(clickedIndex, false);
         currentSlide = clickedIndex;
     });
-    
-    // 定时器控制：往左单向推进，在末尾进行重置归位
+
+    // 自动间隔 5000ms (5秒) 触发一次向右轮播滑动
     setInterval(function() {
         if (currentSlide === 1) {
             switchBanner(2, false);
             currentSlide = 2;
         } else if (currentSlide === 2) {
-            // 滑动到克隆的 slide-1-clone 上，展示只往左移的滑动动画
             switchBanner(3, false);
             currentSlide = 3;
         }

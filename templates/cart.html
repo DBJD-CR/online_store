@@ -1,4 +1,11 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import product_image, sku_info %}
+
+{# 
+  鲜时家网上商城 - 购物车页面模板
+  主要功能：展示买家当前选购的所有商品条目，允许对商品数量进行异步加减调整，
+  并实时计算小计与总金额，点击去结算跳转收银台。
+#}
 
 {% block title %}我的购物车 - 鲜时家{% endblock %}
 
@@ -10,7 +17,18 @@
         padding: 40px;
         text-align: center;
     }
-    
+
+    .cart-empty-title {
+        font-size: 16px;
+        font-weight: bold;
+        color: #FF6600;
+    }
+
+    .cart-empty-tip {
+        color: #666666;
+        margin-bottom: 20px;
+    }
+
     .qty-select-cart {
         height: 24px;
         border: 1px solid #CCCCCC;
@@ -18,7 +36,7 @@
         margin: 0 auto;
         overflow: hidden;
     }
-    
+
     .qty-btn-cart {
         float: left;
         width: 20px;
@@ -30,7 +48,11 @@
         font-weight: bold;
         border: none;
     }
-    
+
+    .qty-btn-cart:hover {
+        background-color: #E0E0E0;
+    }
+
     .qty-input-cart {
         float: left;
         width: 40px;
@@ -40,7 +62,7 @@
         line-height: 22px;
         outline: none;
     }
-    
+
     .cart-summary {
         background-color: #FFFDF0;
         border: 1px solid #FFCC66;
@@ -49,97 +71,123 @@
         margin-top: 15px;
         overflow: hidden;
     }
-    
+
+    .cart-summary-left {
+        float: left;
+        line-height: 35px;
+        color: #666666;
+    }
+
+    .cart-summary-right {
+        float: right;
+    }
+
+    .cart-summary-label {
+        font-size: 14px;
+        font-weight: bold;
+        margin-right: 20px;
+    }
+
     .cart-summary-price {
         font-size: 20px;
         color: #C80A1E;
         font-weight: bold;
-        font-family: Arial;
+        font-family: Arial, sans-serif;
+    }
+
+    .stock-limit {
+        font-size: 10px;
+        color: #999999;
     }
 </style>
 
-<h2 style="font-family: 'Microsoft YaHei', '微软雅黑'; color: #333333; margin-top:0;">🛒 我的购物车</h2>
+<h2 class="page-title">🛒 我的购物车</h2>
 
 {% if cart_items %}
+    <!-- 经典直角表格：列出购物车内的每个商品明细 -->
     <table class="retro-table">
         <thead>
             <tr>
-                <th style="width: 80px;">商品图</th>
-                <th>商品名称</th>
-                <th style="width: 150px;">规格属性</th>
-                <th style="width: 100px;">单价</th>
-                <th style="width: 120px;">购买数量</th>
-                <th style="width: 100px;">小计</th>
-                <th style="width: 80px;">操作</th>
+                <th class="col-img">商品图</th>
+                <th class="col-name">商品名称</th>
+                <th class="col-sku">规格属性</th>
+                <th class="col-price">单价</th>
+                <th class="col-qty">购买数量</th>
+                <th class="col-subtotal">小计</th>
+                <th class="col-action">操作</th>
             </tr>
         </thead>
         <tbody>
             {% for item in cart_items %}
                 <tr id="cart-row-{{ item.id }}">
+                    <!-- 商品小图 -->
                     <td>
-                        {% if item.product_id == 1 %}
-                            <img src="/static/images/box1.png" alt="{{ item.name }}" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='https://placehold.co/50x50?text=商品';">
-                        {% elif item.product_id == 2 %}
-                            <img src="/static/images/bag1.png" alt="{{ item.name }}" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='https://placehold.co/50x50?text=商品';">
-                        {% else %}
-                            <img src="/static/images/logo.jpg" alt="{{ item.name }}" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='https://placehold.co/50x50?text=商品';">
-                        {% endif %}
+                        {{ product_image(item.product_id, size='cart', alt=item.name) }}
                     </td>
-                    <td style="text-align: left; padding-left: 15px;">
-                        <a href="{{ url_for('product_detail', product_id=item.product_id) }}" style="font-weight: bold;">
+                    <!-- 商品标题（点击可查看详情） -->
+                    <td class="cell-name">
+                        <a href="{{ url_for('product_detail', product_id=item.product_id) }}" class="text-bold">
                             {{ item.name }}
                         </a>
                     </td>
+                    <!-- 尺寸/颜色规格 -->
                     <td>
-                        <span style="color:#666666;">规格：{{ item.sku_size or '默认' }}</span><br>
-                        <span style="color:#666666;">颜色：{{ item.sku_color or '默认' }}</span>
+                        {{ sku_info(item.sku_size, item.sku_color) }}
                     </td>
+                    <!-- 单价快照 -->
                     <td>
                         ￥<span class="item-price" data-price="{{ item.price }}">{{ "%.2f"|format(item.price) }}</span>
                     </td>
+                    <!-- 数量加减输入组 -->
                     <td>
                         <div class="qty-select-cart">
-                            <button class="qty-btn-cart" type="button" onclick="changeCartQty({{ item.id }}, -1)">-</button>
+                            <button class="qty-btn-cart" type="button" data-cart-id="{{ item.id }}" data-delta="-1">-</button>
                             <input type="text" class="qty-input-cart" id="qty-input-{{ item.id }}" value="{{ item.quantity }}" readonly>
-                            <button class="qty-btn-cart" type="button" onclick="changeCartQty({{ item.id }}, 1)">+</button>
+                            <button class="qty-btn-cart" type="button" data-cart-id="{{ item.id }}" data-delta="1">+</button>
                         </div>
-                        <span style="font-size: 10px; color: #999;">库存限制: {{ item.stock }}</span>
+                        <span class="stock-limit">库存限制: {{ item.stock }}</span>
                     </td>
+                    <!-- 实时小计金额 -->
                     <td>
-                        <span style="color:#C80A1E; font-weight:bold;">￥<span class="item-subtotal" id="subtotal-{{ item.id }}">{{ "%.2f"|format(item.price * item.quantity) }}</span></span>
+                        <span class="subtotal">￥<span class="item-subtotal" id="subtotal-{{ item.id }}">{{ "%.2f"|format(item.price * item.quantity) }}</span></span>
                     </td>
+                    <!-- 从购物车移除商品操作 -->
                     <td>
-                        <a href="{{ url_for('delete_cart_item', cart_id=item.id) }}" onclick="return confirm('确认从购物车移除该商品吗？');" style="color:#CC0000; font-weight:bold;">删除</a>
+                        <a href="{{ url_for('delete_cart_item', cart_id=item.id) }}" onclick="return confirm('确认从购物车移除该商品吗？');" class="delete-link">删除</a>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 
+    <!-- 购物车底部结算金额卡片 -->
     <div class="cart-summary">
-        <div style="float: left; line-height: 35px; color: #666666;">
+        <div class="cart-summary-left">
             温馨提示：商品库存有限，请尽快进行结算哦。
         </div>
-        <div style="float: right;">
-            <span style="font-size: 14px; font-weight: bold; margin-right: 20px;">商品总金额：<span class="cart-summary-price">￥<span id="cart-total-amount">0.00</span></span></span>
-            <a href="{{ url_for('checkout') }}" class="btn-retro" style="font-size: 16px; padding: 8px 30px; vertical-align: middle;">去结算中心 ➔</a>
+        <div class="cart-summary-right">
+            <span class="cart-summary-label">商品总金额：<span class="cart-summary-price">￥<span id="cart-total-amount">0.00</span></span></span>
+            <a href="{{ url_for('checkout') }}" class="btn-retro btn-checkout">去结算中心 ➔</a>
         </div>
     </div>
 {% else %}
+    <!-- 空购物车友好提示 -->
     <div class="cart-empty">
-        <p style="font-size: 16px; font-weight: bold; color: #FF6600;">您的购物车内还没有商品噢！</p>
-        <p style="color: #666666; margin-bottom: 20px;">快去看看我们最新推出的日期记忆保鲜系列好物吧！</p>
+        <p class="cart-empty-title">您的购物车内还没有商品噢！</p>
+        <p class="cart-empty-tip">快去看看我们最新推出的日期记忆保鲜系列好物吧！</p>
         <a href="{{ url_for('index') }}" class="btn-retro">返回商城首页选购</a>
     </div>
 {% endif %}
 
 <script>
-    // 页面加载时自动计算一次购物车总金额
     $(document).ready(function() {
+        // 首次加载完毕，执行一次总金额计算
         calculateTotal();
     });
 
-    // 计算总金额
+    /**
+     * 自动聚合表格内每一行的小计值，并刷新底部的总金额展示。
+     */
     function calculateTotal() {
         var total = 0.0;
         $(".item-subtotal").each(function() {
@@ -148,14 +196,25 @@
         $("#cart-total-amount").text(total.toFixed(2));
     }
 
-    // 动态修改购物车数量
+    // 绑定加减号按钮点击事件
+    $(document).on('click', '.qty-btn-cart', function() {
+        var cartId = $(this).data('cart-id');
+        var delta = parseInt($(this).data('delta'));
+        changeCartQty(cartId, delta);
+    });
+
+    /**
+     * 向后端发起异步 AJAX 增减购物车请求。
+     * @param {number} cartId - 目标购物车记录 ID
+     * @param {number} amt - 修改的改变量 (如 -1 或 1)
+     */
     function changeCartQty(cartId, amt) {
         var input = $("#qty-input-" + cartId);
         var currentVal = parseInt(input.val());
         var newVal = currentVal + amt;
-        
-        if (newVal < 1) return; // 数量最少为1
-        
+
+        if (newVal < 1) return; // 数量不可少于 1 件
+
         $.ajax({
             url: "{{ url_for('update_cart_quantity') }}",
             type: "POST",
@@ -165,15 +224,15 @@
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    // 更新输入框内的值
+                    // 同步输入框数值为后端确定的最新数量（防超卖）
                     input.val(response.new_quantity);
-                    
-                    // 重新计算该商品小计金额
+
+                    // 重新根据单价与最新数量刷新小计
                     var price = parseFloat($("#cart-row-" + cartId + " .item-price").attr("data-price"));
                     var subtotal = price * response.new_quantity;
                     $("#subtotal-" + cartId).text(subtotal.toFixed(2));
-                    
-                    // 重新计算购物车总金额
+
+                    // 重新聚合总价
                     calculateTotal();
                 } else {
                     alert("更新购物车失败：" + response.message);
