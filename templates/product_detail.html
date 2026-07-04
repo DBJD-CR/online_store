@@ -1,4 +1,11 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import product_image %}
+
+{# 
+  鲜时家网上商城 - 商品详情模板
+  主要功能：展示详细的商品基础信息、相册大图切换、SKU规格尺寸/颜色切换、购买数量加减、
+  添加到购物车与立即购买动作、产品亮点详情介绍以及买家评价列表和新评价发表功能。
+#}
 
 {% block title %}{{ product.name }} - 商品详情页{% endblock %}
 
@@ -10,22 +17,39 @@
         padding: 20px;
         overflow: hidden;
     }
-    
+
     .detail-left {
         float: left;
         width: 320px;
         text-align: center;
     }
-    
+
     .thumb-img {
         transition: border-color 0.2s ease-in-out;
     }
-    
+
+    .thumb-gallery {
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .thumb-gallery .thumb-img {
+        width: 60px;
+        height: 60px;
+        border: 1px solid #CCCCCC;
+        cursor: pointer;
+        margin: 0 5px;
+    }
+
+    .thumb-gallery .thumb-img.selected {
+        border: 2px solid #C80A1E;
+    }
+
     .detail-right {
         float: right;
         width: 580px;
     }
-    
+
     .detail-img-box {
         width: 300px;
         height: 300px;
@@ -34,14 +58,13 @@
         position: relative;
         background-color: #FAFAFA;
     }
-    
+
     .detail-img-box img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-    
-    /* 售罄水印印章在详情页的展现 */
+
     .detail-stamp {
         position: absolute;
         top: 100px;
@@ -55,12 +78,12 @@
         font-weight: bold;
         z-index: 100;
     }
-    
+
     .detail-stamp-preview {
         border-color: #FF6600;
         color: #FF6600;
     }
-    
+
     .product-title-detail {
         font-family: "Microsoft YaHei", "微软雅黑";
         font-size: 20px;
@@ -70,50 +93,49 @@
         margin-bottom: 15px;
         line-height: 28px;
     }
-    
+
     .price-panel {
         background-color: #FFF2E6;
         border: 1px dashed #FF8000;
         padding: 15px;
         margin-bottom: 20px;
     }
-    
+
     .price-row {
         height: 30px;
         line-height: 30px;
     }
-    
+
     .price-label {
         color: #666666;
         width: 80px;
         display: inline-block;
     }
-    
+
     .price-val {
         color: #C80A1E;
         font-size: 24px;
         font-weight: bold;
         font-family: Arial, sans-serif;
     }
-    
-    /* SKU 选项样式 (经典的复古格子按钮样式) */
+
     .sku-group {
         margin-bottom: 15px;
         overflow: hidden;
     }
-    
+
     .sku-label {
         float: left;
         width: 80px;
         line-height: 28px;
         color: #666666;
     }
-    
+
     .sku-options {
         float: left;
         width: 500px;
     }
-    
+
     .sku-item {
         float: left;
         border: 1px solid #CCCCCC;
@@ -125,20 +147,19 @@
         font-weight: bold;
         font-size: 11px;
     }
-    
+
     .sku-item:hover {
         border-color: #C80A1E;
         color: #C80A1E;
     }
-    
+
     .sku-item.selected {
         border: 2px solid #C80A1E;
         color: #C80A1E;
-        padding: 4px 9px; /* 调整内边距防止大小抖动 */
-        background: url('https://pics.taobaocdn.com/img/gui/icon_selected.gif') no-repeat right bottom; /* 10年代经典的淘宝勾选背景 */
+        padding: 4px 9px;
+        background: url('https://pics.taobaocdn.com/img/gui/icon_selected.gif') no-repeat right bottom;
     }
-    
-    /* 购买数量加减框 */
+
     .quantity-select {
         float: left;
         height: 24px;
@@ -146,7 +167,7 @@
         width: 100px;
         overflow: hidden;
     }
-    
+
     .qty-btn {
         float: left;
         width: 24px;
@@ -158,11 +179,11 @@
         font-weight: bold;
         border: none;
     }
-    
+
     .qty-btn:hover {
         background-color: #E0E0E0;
     }
-    
+
     .qty-input {
         float: left;
         width: 50px;
@@ -172,14 +193,59 @@
         line-height: 22px;
         outline: none;
     }
-    
-    /* 评价与详情选项卡 */
+
+    .stock-hint {
+        line-height: 24px;
+        margin-left: 15px;
+        color: #666666;
+    }
+
+    .action-bar {
+        margin-top: 25px;
+    }
+
+    .btn-buy-now {
+        font-size: 16px;
+        padding: 10px 30px;
+    }
+
+    .btn-add-cart {
+        font-size: 16px;
+        padding: 10px 20px;
+        background-color: #FF8000;
+        border-color: #CC6600;
+    }
+
+    .btn-disabled-lg {
+        font-size: 16px;
+        padding: 10px 30px;
+    }
+
+    .soldout-notice {
+        background-color: #FFF2F2;
+        border: 1px solid #FFC4C4;
+        padding: 15px;
+        margin-bottom: 20px;
+        color: #CC0000;
+        font-weight: bold;
+    }
+
+    .hint-text {
+        color: #666666;
+        margin-top: 10px;
+    }
+
+    .product-description {
+        color: #666666;
+        line-height: 18px;
+    }
+
     .tab-container {
         margin-top: 30px;
         border: 1px solid #CCCCCC;
         background-color: #FFFFFF;
     }
-    
+
     .tab-header {
         background-color: #F2F2F2;
         border-bottom: 1px solid #CCCCCC;
@@ -187,7 +253,7 @@
         line-height: 35px;
         overflow: hidden;
     }
-    
+
     .tab-btn {
         float: left;
         padding: 0 25px;
@@ -196,7 +262,7 @@
         cursor: pointer;
         border-right: 1px solid #CCCCCC;
     }
-    
+
     .tab-btn.active {
         background-color: #FFFFFF;
         color: #C80A1E;
@@ -204,49 +270,67 @@
         margin-top: -1px;
         height: 36px;
     }
-    
+
     .tab-content {
         padding: 20px;
     }
-    
+
+    .tab-panel-hidden {
+        display: none;
+    }
+
     .review-item {
         border-bottom: 1px dashed #DDDDDD;
         padding: 15px 0;
     }
-    
+
     .review-item:last-child {
         border-bottom: none;
     }
-    
+
     .review-meta {
         color: #999999;
         margin-bottom: 5px;
         overflow: hidden;
     }
-    
+
     .review-user {
         float: left;
         font-weight: bold;
         color: #666666;
     }
-    
+
     .review-time {
         float: right;
     }
-    
+
+    .review-stars {
+        color: #FF9900;
+        margin-left: 15px;
+    }
+
     .review-content {
         font-size: 13px;
         line-height: 18px;
     }
-    
-    /* 写评价的复古表单 */
+
+    .empty-tip {
+        color: #999999;
+        text-align: center;
+    }
+
     .write-review-box {
         border: 1px solid #FFE4C4;
         background-color: #FFFDF0;
         padding: 15px;
         margin-top: 20px;
     }
-    
+
+    .review-form-title {
+        margin: 0 0 10px 0;
+        color: #333333;
+    }
+
     .write-review-box textarea {
         width: 100%;
         height: 80px;
@@ -257,20 +341,50 @@
         font-size: 12px;
         resize: none;
     }
+
+    .review-rating-select {
+        border: 1px solid #CCCCCC;
+        padding: 2px;
+    }
+
+    .review-form-actions {
+        margin-top: 10px;
+        text-align: right;
+    }
+
+    .login-tip {
+        text-align: center;
+        margin: 0;
+    }
+
+    .detail-section-title {
+        color: #C80A1E;
+        border-bottom: 1px solid #EEEEEE;
+        padding-bottom: 8px;
+    }
+
+    .detail-text {
+        font-size: 13px;
+        line-height: 20px;
+    }
+
+    .promo-banner {
+        border: 2px dashed #CCCCCC;
+        padding: 20px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #A20818;
+        display: inline-block;
+    }
 </style>
 
 <div class="detail-container">
-    <!-- 左侧主图占位 -->
+    <!-- 左边栏：商品主图渲染、缩略图切换廊及温馨语提示 -->
     <div class="detail-left">
         <div class="detail-img-box {% if product.is_real == 0 %}mosaic-blur{% endif %}">
-            {% if product.id == 1 %}
-                <img src="/static/images/box1.png" alt="{{ product.name }}" onerror="this.src='https://placehold.co/300x300?text=记忆保鲜盒';">
-            {% elif product.id == 2 %}
-                <img src="/static/images/bag1.jpg" alt="{{ product.name }}" onerror="this.src='https://placehold.co/300x300?text=记忆保鲜袋';">
-            {% else %}
-                <img src="https://placehold.co/300x300/dddddd/666666?text={{ product.name }}" alt="{{ product.name }}">
-            {% endif %}
-            
+            <!-- 调用全局宏渲染商品主图 -->
+            {{ product_image(product.id, size='detail', alt=product.name) }}
+
             {% if product.is_real == 0 %}
                 {% if product.status == 'soldout' %}
                     <div class="detail-stamp">已 售 罄</div>
@@ -279,28 +393,28 @@
                 {% endif %}
             {% endif %}
         </div>
-        
-        <!-- 多图预览区域：支持点击主图或切换略缩图 -->
-        <div style="margin-top: 15px; text-align: center;" id="thumb-gallery">
+
+        <!-- 缩略图切换 gallery -->
+        <div class="thumb-gallery" id="thumb-gallery">
             {% if product.id == 1 %}
-                <img src="/static/images/box1.png" class="thumb-img selected" style="width: 60px; height: 60px; border: 2px solid #C80A1E; cursor: pointer; margin: 0 5px;" onclick="switchDetailImage('/static/images/box1.png', this)">
-                <img src="/static/images/box2.png" class="thumb-img" style="width: 60px; height: 60px; border: 1px solid #CCCCCC; cursor: pointer; margin: 0 5px;" onclick="switchDetailImage('/static/images/box2.png', this)">
-                <img src="/static/images/box3.jpg" class="thumb-img" style="width: 60px; height: 60px; border: 1px solid #CCCCCC; cursor: pointer; margin: 0 5px;" onclick="switchDetailImage('/static/images/box3.jpg', this)">
+                <img src="{{ url_for('static', filename='images/box1.png') }}" class="thumb-img selected" data-full-src="{{ url_for('static', filename='images/box1.png') }}">
+                <img src="{{ url_for('static', filename='images/box2.png') }}" class="thumb-img" data-full-src="{{ url_for('static', filename='images/box2.png') }}">
+                <img src="{{ url_for('static', filename='images/box3.jpg') }}" class="thumb-img" data-full-src="{{ url_for('static', filename='images/box3.jpg') }}">
             {% elif product.id == 2 %}
-                <img src="/static/images/bag1.jpg" class="thumb-img selected" style="width: 60px; height: 60px; border: 2px solid #C80A1E; cursor: pointer; margin: 0 5px;" onclick="switchDetailImage('/static/images/bag1.jpg', this)">
-                <img src="/static/images/bag2.png" class="thumb-img" style="width: 60px; height: 60px; border: 1px solid #CCCCCC; cursor: pointer; margin: 0 5px;" onclick="switchDetailImage('/static/images/bag2.png', this)">
-                <img src="/static/images/bag3.jpg" class="thumb-img" style="width: 60px; height: 60px; border: 1px solid #CCCCCC; cursor: pointer; margin: 0 5px;" onclick="switchDetailImage('/static/images/bag3.jpg', this)">
+                <img src="{{ url_for('static', filename='images/bag1.jpg') }}" class="thumb-img selected" data-full-src="{{ url_for('static', filename='images/bag1.jpg') }}">
+                <img src="{{ url_for('static', filename='images/bag2.png') }}" class="thumb-img" data-full-src="{{ url_for('static', filename='images/bag2.png') }}">
+                <img src="{{ url_for('static', filename='images/bag3.jpg') }}" class="thumb-img" data-full-src="{{ url_for('static', filename='images/bag3.jpg') }}">
             {% endif %}
         </div>
-        <p style="color:#666666; margin-top:10px;">温馨提示：正品保障 · 食品级安全材质</p>
+        <p class="hint-text">温馨提示：正品保障 · 食品级安全材质</p>
     </div>
-    
-    <!-- 右侧商品信息 -->
+
+    <!-- 右边栏：标题、描述、动态价格、SKU规格交互选择及加购控制 -->
     <div class="detail-right">
         <h1 class="product-title-detail">{{ product.name }}</h1>
-        <p style="color:#666666; line-height:18px;">{{ product.description }}</p>
-        
-        <!-- 价格看板 -->
+        <p class="product-description">{{ product.description }}</p>
+
+        <!-- 价格促销面板 -->
         <div class="price-panel">
             <div class="price-row">
                 <span class="price-label">鲜时家价格</span>
@@ -308,16 +422,16 @@
             </div>
             <div class="price-row">
                 <span class="price-label">原  价</span>
-                <span style="text-decoration: line-through; color: #999;" id="original-price-display">￥{{ "%.2f"|format(product.price * 1.5) }}</span>
+                <span class="original-price" id="original-price-display">￥{{ "%.2f"|format(product.price * 1.5) }}</span>
             </div>
             <div class="price-row">
                 <span class="price-label">配送服务</span>
                 <span>顺丰快递/中通快递（全国包邮，今日下单明日发货）</span>
             </div>
         </div>
-        
+
         {% if product.is_real == 1 %}
-            <!-- SKU属性：规格 -->
+            <!-- 尺寸 SKU 规格选择组 -->
             <div class="sku-group">
                 <div class="sku-label">选择规格</div>
                 <div class="sku-options" id="sku-size-container">
@@ -325,8 +439,8 @@
                     <div class="sku-item" data-value="小号" onclick="updateSKUPrice('小号')">小号 (精细便当款)</div>
                 </div>
             </div>
-            
-            <!-- SKU属性：颜色 -->
+
+            <!-- 颜色 SKU 规格选择组 -->
             <div class="sku-group">
                 <div class="sku-label">选择颜色</div>
                 <div class="sku-options" id="sku-color-container">
@@ -337,8 +451,8 @@
                     {% endif %}
                 </div>
             </div>
-            
-            <!-- 数量 -->
+
+            <!-- 购买数量加减选择器 -->
             <div class="sku-group">
                 <div class="sku-label">购买数量</div>
                 <div class="sku-options">
@@ -347,80 +461,80 @@
                         <input type="text" class="qty-input" id="buy-qty" value="1" readonly>
                         <button class="qty-btn" type="button" onclick="changeQty(1)">+</button>
                     </div>
-                    <span style="line-height: 24px; margin-left: 15px; color: #666666;">库存在线充足 (剩 {{ product.stock }} 件)</span>
+                    <span class="stock-hint">库存在线充足 (剩 {{ product.stock }} 件)</span>
                 </div>
             </div>
-            
-            <div style="margin-top:25px;">
+
+            <!-- 核心行动按钮操作栏 -->
+            <div class="action-bar">
                 {% if product.stock > 0 %}
-                    <button class="btn-retro" style="font-size:16px; padding:10px 30px;" onclick="addToCart(true)">立即购买</button>
-                    <button class="btn-retro" style="font-size:16px; padding:10px 20px; background-color:#FF8000; border-color:#CC6600;" onclick="addToCart(false)">加入购物车</button>
+                    <button class="btn-retro btn-buy-now" onclick="addToCart(true)">立即购买</button>
+                    <button class="btn-retro btn-add-cart" onclick="addToCart(false)">加入购物车</button>
                 {% else %}
-                    <button class="btn-retro-disabled" style="font-size:16px; padding:10px 30px;" disabled>已售罄，无法购买</button>
+                    <button class="btn-retro-disabled btn-disabled-lg" disabled>已售罄，无法购买</button>
                 {% endif %}
             </div>
         {% else %}
-            <!-- 障眼法/售罄商品信息 -->
-            <div style="background-color: #FFF2F2; border: 1px solid #FFC4C4; padding: 15px; margin-bottom: 20px; color: #CC0000; font-weight: bold;">
+            <!-- 针对障眼法/预售商品的警告及购买拦截状态 -->
+            <div class="soldout-notice">
                 ⚠️ 该商品目前库存不足，或属于抢先发布的预售新品。当前状态：【{{ '已售罄' if product.status == 'soldout' else '下期预告' }}】
             </div>
-            <div style="margin-top:25px;">
-                <button class="btn-retro-disabled" style="font-size:16px; padding:10px 30px;" disabled>库存不足，无法购买</button>
+            <div class="action-bar">
+                <button class="btn-retro-disabled btn-disabled-lg" disabled>库存不足，无法购买</button>
             </div>
         {% endif %}
     </div>
 </div>
 
-<!-- 评价/参数选项卡 -->
+<!-- 商品详情与评价页签区块 -->
 <div class="tab-container">
     <div class="tab-header">
         <div class="tab-btn active" id="btn-desc" onclick="switchTab('desc')">产品详情/使用方法</div>
         <div class="tab-btn" id="btn-reviews" onclick="switchTab('reviews')">买家评价 ({{ reviews|length }})</div>
     </div>
-    
-    <!-- 详情内容 -->
+
+    <!-- 页签1：详情内容 -->
     <div class="tab-content" id="content-desc">
-        <h3 style="color:#C80A1E; border-bottom:1px solid #EEEEEE; padding-bottom:8px;">★ 鲜时家核心保鲜亮点</h3>
-        <p style="font-size:13px; line-height:20px;">
+        <h3 class="detail-section-title">★ 鲜时家核心保鲜亮点</h3>
+        <p class="detail-text">
             1. <b>手动日期记忆拨盘/手写区：</b> 在盖子上方带有月份与日期的经典机械刻度拨盘，放入冰箱时随手一转，记录存储时间，彻底告别过期风险；保鲜袋袋身带有大面积环保油墨手写记录区，方便用签字笔备注食材名称和封存日期。<br>
             2. <b>防串味、防渗漏：</b> 四面环扣配合高弹性硅胶密封圈，液体倒置不洒漏。保鲜袋采用双轨咬合密封设计，空气隔绝度高，有效维持箱内洁净清爽。<br>
             3. <b>食品级安全材质：</b> 精选无毒无味的食品级PP/PE材质，耐温范围 -20℃ 至 120℃，冰箱冷冻、微波炉加热（加热时请取下顶盖）、便当备餐全能适配！<br>
-            4. <b>极简空间魔术师：</b> 盖子四周凹槽防滑设计，稳固叠放，节约70%冰箱保鲜空间。
+            4. <b>极简 space 魔术师：</b> 盖子四周凹槽防滑设计，稳固叠放，节约70%冰箱保鲜空间。
         </p>
-        <div style="text-align: center; margin-top:20px;">
-            <!-- 大字报式的广告，10年代风 -->
-            <div style="border: 2px dashed #CCCCCC; padding: 20px; font-size: 16px; font-weight: bold; color: #A20818; display: inline-block;">
+        <div class="text-center margin-top-20">
+            <div class="promo-banner">
                 【鲜时家】防过期 · 防串味 · 防渗漏 · 食品级材质
             </div>
         </div>
     </div>
-    
-    <!-- 评价内容 -->
-    <div class="tab-content" id="content-reviews" style="display:none;">
+
+    <!-- 页签2：评价列表与新评价提交 -->
+    <div class="tab-content tab-panel-hidden" id="content-reviews">
         <div class="reviews-list" id="reviews-list-container">
             {% if reviews %}
                 {% for review in reviews %}
                     <div class="review-item">
                         <div class="review-meta">
                             <span class="review-user">{{ review.username }}</span>
-                            <span style="color:#FF9900; margin-left:15px;">{{ '★' * review.rating }}{{ '☆' * (5 - review.rating) }}</span>
+                            <span class="review-stars">{{ '★' * review.rating }}{{ '☆' * (5 - review.rating) }}</span>
                             <span class="review-time">{{ review.created_at }}</span>
                         </div>
                         <div class="review-content">{{ review.content }}</div>
                     </div>
                 {% endfor %}
             {% else %}
-                <p style="color:#999999; text-align:center;" id="no-reviews-tip">暂无评价，买过该商品的用户快来抢沙发吧！</p>
+                <p class="empty-tip" id="no-reviews-tip">暂无评价，买过该商品的用户快来抢沙发吧！</p>
             {% endif %}
         </div>
-        
-        <!-- 写评价 (前提：已登录用户，为了交差闭环任何人都可以写评价) -->
+
+        <!-- 评价编辑并提交区域 -->
         <div class="write-review-box">
-            <h4 style="margin: 0 0 10px 0; color:#333;">✍️ 我要写评价</h4>
+            <h4 class="review-form-title">✍️ 我要写评价</h4>
             {% if current_user %}
-                <div style="margin-bottom: 10px;">
-                    <span style="font-weight:bold;">评分：</span>
-                    <select id="review-rating" style="border:1px solid #CCCCCC; padding:2px;">
+                <div class="margin-bottom-10">
+                    <span class="text-bold">评分：</span>
+                    <select id="review-rating" class="review-rating-select">
                         <option value="5">★★★★★ (5分 强烈推荐)</option>
                         <option value="4">★★★★☆ (4分 挺好用)</option>
                         <option value="3">★★★☆☆ (3分 还可以)</option>
@@ -431,60 +545,64 @@
                 <div>
                     <textarea id="review-content-input" placeholder="请写下您对该保鲜产品的使用体验，防过期、密封度、手感材质等多维度评价，字数不限..."></textarea>
                 </div>
-                <div style="margin-top:10px; text-align:right;">
+                <div class="review-form-actions">
                     <button type="button" class="btn-retro" onclick="submitReview()">提交评价</button>
                 </div>
             {% else %}
-                <p style="text-align:center; margin:0;"><a href="{{ url_for('login') }}">请先登录</a> 后才可以对商品发表评价噢！</p>
+                <p class="login-tip"><a href="{{ url_for('login') }}">请先登录</a> 后才可以对商品发表评价噢！</p>
             {% endif %}
         </div>
     </div>
 </div>
 
 <script>
-    // 图片切换联动
-    function switchDetailImage(src, thumbElement) {
+    // 绑定缩略图切换事件，实现大图渲染同步切换
+    $(document).on('click', '.thumb-gallery .thumb-img', function() {
+        var src = $(this).data('full-src');
         $(".detail-img-box img").attr("src", src);
         $(".thumb-img").css("border", "1px solid #CCCCCC").removeClass("selected");
-        $(thumbElement).css("border", "2px solid #C80A1E").addClass("selected");
-    }
+        $(this).css("border", "2px solid #C80A1E").addClass("selected");
+    });
 
-    // 规格价格联动
     var productId = parseInt("{{ product.id }}");
+
+    // 根据选择的大小规格，动态更新页面标价和原价显示数值
     function updateSKUPrice(size) {
         var price = 0.0;
-        if (productId === 1) { // 盒子
+        if (productId === 1) {
             price = (size === '大号') ? 12.90 : 9.90;
-        } else if (productId === 2) { // 袋子
+        } else if (productId === 2) {
             price = (size === '大号') ? 7.70 : 5.50;
         }
-        
+
         if (price > 0) {
             $("#price-display").text("￥" + price.toFixed(2));
             $("#original-price-display").text("￥" + (price * 1.5).toFixed(2));
         }
     }
 
-    // SKU 选择联动效果
+    // 绑定规格尺寸选中状态切换
     $("#sku-size-container .sku-item").click(function(){
         $("#sku-size-container .sku-item").removeClass("selected");
         $(this).addClass("selected");
     });
-    
+
+    // 绑定规格颜色选中状态切换
     $("#sku-color-container .sku-item").click(function(){
         $("#sku-color-container .sku-item").removeClass("selected");
         $(this).addClass("selected");
     });
-    
-    // 初始化首屏价格
+
+    // 初始化加载时，默认触发一次“大号”的 SKU 动态定价更新
     $(document).ready(function() {
         if (productId === 1 || productId === 2) {
             updateSKUPrice('大号');
         }
     });
-    
-    // 数量加减
+
     var maxStock = parseInt("{{ product.stock or 0 }}");
+
+    // 控制购买数量输入框的数值改变，确保不超过最大物理库存，不低于下限1
     function changeQty(amt) {
         var input = $("#buy-qty");
         var val = parseInt(input.val()) + amt;
@@ -492,12 +610,12 @@
         if (val > maxStock) val = maxStock;
         input.val(val);
     }
-    
-    // 选项卡切换
+
+    // 产品详情及评价两块 tab 区的显示隐藏切换
     function switchTab(tab) {
         $(".tab-btn").removeClass("active");
         $(".tab-content").hide();
-        
+
         if (tab === 'desc') {
             $("#btn-desc").addClass("active");
             $("#content-desc").show();
@@ -506,14 +624,14 @@
             $("#content-reviews").show();
         }
     }
-    
-    // 加入购物车或立即购买
+
+    // 触发将商品规格加入购物车或立即购买流程
     function addToCart(isBuyNow) {
         var productId = parseInt("{{ product.id }}");
         var qty = parseInt($("#buy-qty").val());
         var skuSize = $("#sku-size-container .sku-item.selected").attr("data-value");
         var skuColor = $("#sku-color-container .sku-item.selected").attr("data-value");
-        
+
         $.ajax({
             url: "{{ url_for('add_to_cart') }}",
             type: "POST",
@@ -526,10 +644,10 @@
             success: function(response) {
                 if (response.status === 'success') {
                     if (isBuyNow) {
-                        // 立即购买，直接前往购物车页面进行结算
+                        // 立即购买，直接跳转至购物车页面去结算
                         window.location.href = "{{ url_for('cart') }}";
                     } else {
-                        // 提示成功，更新全局购物车数量
+                        // 仅加购，弹出提示并更新顶栏购物车角标件数
                         alert(response.message);
                         var countSpan = $("#cart-count-header");
                         var newCount = parseInt(countSpan.text()) + qty;
@@ -544,18 +662,18 @@
             }
         });
     }
-    
-    // 提交评价
+
+    // 异步提交对该商品的买家文字评语
     function submitReview() {
         var productId = parseInt("{{ product.id }}");
         var content = $("#review-content-input").val().trim();
         var rating = parseInt($("#review-rating").val());
-        
+
         if (!content) {
             alert("请先填写评价内容！");
             return;
         }
-        
+
         $.ajax({
             url: "{{ url_for('add_review') }}",
             type: "POST",
@@ -568,30 +686,30 @@
                 if (response.status === 'success') {
                     alert(response.message);
                     $("#review-content-input").val("");
-                    
-                    // 动态更新页面中的评价列表，达到即刻查看的效果
+
+                    // 本地拼装刚发表的评价 DOM 并置顶插入列表，保证良好的视觉即时反馈
                     var stars = "★".repeat(rating) + "☆".repeat(5 - rating);
                     var today = new Date();
-                    var timeStr = today.getFullYear() + "-" + 
-                                  String(today.getMonth() + 1).padStart(2, '0') + "-" + 
-                                  String(today.getDate()).padStart(2, '0') + " " + 
-                                  String(today.getHours()).padStart(2, '0') + ":" + 
-                                  String(today.getMinutes()).padStart(2, '0') + ":" + 
+                    var timeStr = today.getFullYear() + "-" +
+                                  String(today.getMonth() + 1).padStart(2, '0') + "-" +
+                                  String(today.getDate()).padStart(2, '0') + " " +
+                                  String(today.getHours()).padStart(2, '0') + ":" +
+                                  String(today.getMinutes()).padStart(2, '0') + ":" +
                                   String(today.getSeconds()).padStart(2, '0');
-                                  
+
                     var newHtml = '<div class="review-item">' +
                                   '  <div class="review-meta">' +
                                   '    <span class="review-user">{{ current_user.username if current_user else "匿名" }}</span>' +
-                                  '    <span style="color:#FF9900; margin-left:15px;">' + stars + '</span>' +
+                                  '    <span class="review-stars">' + stars + '</span>' +
                                   '    <span class="review-time">' + timeStr + '</span>' +
                                   '  </div>' +
                                   '  <div class="review-content">' + content + '</div>' +
                                   '</div>';
-                                  
+
                     $("#no-reviews-tip").hide();
                     $("#reviews-list-container").prepend(newHtml);
-                    
-                    // 更新选项卡标签上的数量
+
+                    // 同步更新评价 Tab 头部计数量
                     var btnText = $("#btn-reviews").text();
                     var currentNum = parseInt(btnText.match(/\d+/)[0]);
                     $("#btn-reviews").text("买家评价 (" + (currentNum + 1) + ")");

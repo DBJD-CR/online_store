@@ -1,0 +1,72 @@
+{# ========================================================= #}
+{# 鲜时家网上商城 - Jinja2 公共宏 #}
+{# 抽取模板中反复出现的片段，保持渲染结果不变。 #}
+{# ========================================================= #}
+
+{# 商品图片：统一处理真实商品 1/2 与虚拟商品的图片路径 #}
+{% macro product_image(product_id, size='small', alt='', class_name='') %}
+    {% if product_id == 1 %}
+        {% set src = '/static/images/box1.png' %}
+        {% set fallback = 'https://placehold.co/' + (size == 'detail' and '300x300' or '200x200') + '?text=记忆保鲜盒' %}
+    {% elif product_id == 2 %}
+        {% set src = '/static/images/bag1.jpg' %}
+        {% set fallback = 'https://placehold.co/' + (size == 'detail' and '300x300' or '200x200') + '?text=记忆保鲜袋' %}
+    {% else %}
+        {% set src = '/static/images/logo.jpg' %}
+        {% set fallback = 'https://placehold.co/40x40?text=商品' %}
+    {% endif %}
+
+    {% if size == 'grid' %}
+        <img src="{{ src }}" alt="{{ alt }}" class="img-fill {{ class_name }}" onerror="this.src='{{ fallback }}';">
+    {% elif size == 'detail' %}
+        <img src="{{ src }}" alt="{{ alt }}" class="img-fill {{ class_name }}" onerror="this.src='{{ fallback }}';">
+    {% elif size == 'thumb' %}
+        <img src="{{ src }}" alt="{{ alt }}" class="img-thumb-lg thumb-img {{ class_name }}" onerror="this.src='{{ fallback }}';">
+    {% elif size == 'cart' %}
+        <img src="{{ src }}" alt="{{ alt }}" class="img-thumb-md {{ class_name }}" onerror="this.src='{{ fallback }}';">
+    {% elif size == 'logo' %}
+        <img src="{{ src }}" alt="{{ alt }}" class="img-thumb-sm {{ class_name }}" onerror="this.src='{{ fallback }}';">
+    {% else %}
+        <img src="{{ src }}" alt="{{ alt }}" class="img-thumb-sm {{ class_name }}" onerror="this.src='{{ fallback }}';">
+    {% endif %}
+{% endmacro %}
+
+{# 首页价格区间展示 #}
+{% macro product_price_range(product) %}
+    {% if product.id == 1 %}
+        ￥9.90 - ￥12.90
+    {% elif product.id == 2 %}
+        ￥5.50 - ￥7.70
+    {% else %}
+        ￥{{ "%.2f"|format(product.price) }}
+    {% endif %}
+{% endmacro %}
+
+{# 订单状态徽章：统一渲染前台/后台状态样式 #}
+{% macro order_status_badge(status, is_admin=False) %}
+    {% set label = status|order_status_name(is_admin) %}
+    {% if status == 'pending_pay' %}
+        <span class="order-status-badge status-pay">{{ label }}</span>
+    {% elif status == 'pending_ship' %}
+        <span class="order-status-badge status-ship">{{ label }}</span>
+    {% elif status == 'pending_recv' %}
+        <span class="order-status-badge status-recv">{{ label }}</span>
+    {% else %}
+        <span class="order-status-badge status-completed">{{ label }}</span>
+    {% endif %}
+{% endmacro %}
+
+{# SKU 规格/颜色信息展示 #}
+{% macro sku_info(size, color) %}
+    <span class="sku-info">规格：{{ size or '默认' }}</span><br>
+    <span class="sku-info">颜色：{{ color or '默认' }}</span>
+{% endmacro %}
+
+{# 空状态提示框 #}
+{% macro empty_state(title, tip, btn_text, btn_url) %}
+    <div class="empty-state">
+        <p class="empty-state-title">{{ title }}</p>
+        <p class="empty-state-tip">{{ tip }}</p>
+        <a href="{{ btn_url }}" class="btn-retro">{{ btn_text }}</a>
+    </div>
+{% endmacro %}

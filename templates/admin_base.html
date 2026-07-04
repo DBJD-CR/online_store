@@ -1,35 +1,26 @@
+{# 
+  鲜时家网上商城 - 商家管理后台基础模板
+  定义后台管理页面的侧边导航栏及统一的直角表格主骨架。
+#}
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>鲜时家 - 商家管理后台</title>
+    <!-- 后台直接共享前台的公共 common.css 样式表 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
     <style>
         body {
-            font-family: "SimSun", "宋体", Arial, sans-serif;
-            font-size: 12px;
-            color: #333333;
             background-color: #F4F4F4;
-            margin: 0;
-            padding: 0;
         }
-        
-        a {
-            color: #0000FF;
-            text-decoration: none;
-        }
-        
-        a:hover {
-            color: #FF0000;
-            text-decoration: underline;
-        }
-        
+
         .admin-header {
             background-color: #333333;
             color: #FFFFFF;
             padding: 10px 20px;
             overflow: hidden;
         }
-        
+
         .admin-logo {
             float: left;
             font-size: 18px;
@@ -37,18 +28,18 @@
             font-family: "Microsoft YaHei", "微软雅黑";
             line-height: 30px;
         }
-        
+
         .admin-nav {
             float: right;
             line-height: 30px;
         }
-        
+
         .admin-nav a {
             color: #FFFFFF;
             margin-left: 20px;
             font-weight: bold;
         }
-        
+
         .admin-container {
             width: 1000px;
             margin: 20px auto;
@@ -57,19 +48,26 @@
             padding: 20px;
             min-height: 400px;
         }
-        
+
+        .admin-flash-container {
+            min-height: auto;
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
         .admin-sidebar {
             float: left;
             width: 180px;
             border-right: 1px solid #EEEEEE;
             padding-right: 15px;
         }
-        
+
         .admin-main {
             float: right;
             width: 780px;
         }
-        
+
         .menu-title {
             font-weight: bold;
             background-color: #EAEAEA;
@@ -77,121 +75,35 @@
             margin-top: 10px;
             border-left: 3px solid #C80A1E;
         }
-        
+
         .menu-list {
             list-style: none;
             padding: 0;
             margin: 5px 0;
         }
-        
+
         .menu-list li {
             padding: 6px 15px;
         }
-        
+
         .menu-list li.active a {
             color: #C80A1E;
             font-weight: bold;
         }
-        
-        /* 经典通知/跑马灯 */
-        .flash-messages {
-            margin: 10px 0;
-        }
-        
-        .flash-message {
-            padding: 8px 15px;
-            border: 1px solid;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        
-        .flash-message.success {
-            background-color: #E2F5E2;
-            border-color: #B5E4B5;
-            color: #008000;
-        }
-        
-        .flash-message.error {
-            background-color: #FFF2F2;
-            border-color: #FFC4C4;
-            color: #CC0000;
-        }
-        
-        /* 表格样式 */
-        table.retro-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #CCCCCC;
-            background-color: #FFFFFF;
-            margin-bottom: 15px;
-        }
-        
-        table.retro-table th {
-            background-color: #F2F2F2;
-            border: 1px solid #CCCCCC;
-            padding: 8px;
-            font-weight: bold;
+
+        .admin-footer {
             text-align: center;
-        }
-        
-        table.retro-table td {
-            border: 1px solid #CCCCCC;
-            padding: 8px;
-            text-align: center;
-        }
-        
-        /* 直角经典按钮 */
-        .btn-retro {
-            background-color: #C80A1E;
-            color: #FFFFFF;
-            border: 1px solid #A20818;
-            padding: 5px 15px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            display: inline-block;
-        }
-        
-        .btn-retro:hover {
-            background-color: #FF0000;
-            text-decoration: none;
-            color: #FFFFFF;
-        }
-        
-        .order-status-badge {
-            padding: 2px 5px;
-            font-weight: bold;
-            font-size: 10px;
-        }
-        
-        .status-pay {
-            background-color: #FFF2F2;
-            color: #CC0000;
-            border: 1px solid #FFC4C4;
-        }
-        
-        .status-ship {
-            background-color: #FFF7EB;
-            color: #FF6600;
-            border: 1px solid #FFD8A6;
-        }
-        
-        .status-recv {
-            background-color: #E6F3FF;
-            color: #0066CC;
-            border: 1px solid #B3D7FF;
-        }
-        
-        .status-completed {
-            background-color: #E2F5E2;
-            color: #008000;
-            border: 1px solid #B5E4B5;
+            color: #999999;
+            margin: 30px 0;
+            font-size: 11px;
         }
     </style>
+    <!-- 后台同样引用 jQuery 以提供良好的事件交互 -->
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 </head>
 <body>
 
+    <!-- 后台头部黑色导航卡片 -->
     <div class="admin-header">
         <div class="admin-logo">🔧 鲜时家官方商城 - 极简商家后台</div>
         <div class="admin-nav">
@@ -199,11 +111,11 @@
         </div>
     </div>
 
-    <!-- 提示消息 -->
-    <div class="admin-container" style="min-height: auto; margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
+    <!-- 提示消息渲染框：采用无动画的简洁版 flash-messages-plain -->
+    <div class="admin-container admin-flash-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="flash-messages">
+                <div class="flash-messages flash-messages-plain">
                     {% for category, message in messages %}
                         <div class="flash-message {{ category }}">{{ message }}</div>
                     {% endfor %}
@@ -212,8 +124,9 @@
         {% endwith %}
     </div>
 
+    <!-- 后台双栏主格：左边侧导航菜单，右边操作面板 -->
     <div class="admin-container">
-        <!-- 侧栏菜单 -->
+        <!-- 侧栏菜单，使用 Jinja2 request 动态标记当前激活菜单项 -->
         <div class="admin-sidebar">
             <div class="menu-title">📦 商品管理</div>
             <ul class="menu-list">
@@ -221,7 +134,7 @@
                     <a href="{{ url_for('admin_products') }}">商品库存与价格修改</a>
                 </li>
             </ul>
-            
+
             <div class="menu-title">🧾 订单管理</div>
             <ul class="menu-list">
                 <li class="{% if request.path == '/admin/orders' %}active{% endif %}">
@@ -229,16 +142,17 @@
                 </li>
             </ul>
         </div>
-        
-        <!-- 主体区域 -->
+
+        <!-- 主体操作插槽 -->
         <div class="admin-main">
             {% block admin_content %}{% endblock %}
         </div>
-        
-        <div style="clear:both;"></div>
+
+        <div class="clearfix"></div>
     </div>
 
-    <div style="text-align: center; color: #999999; margin: 30px 0; font-size:11px;">
+    <!-- 后台底栏 -->
+    <div class="admin-footer">
         鲜时家网上商城后台管理面板 · 纯 HTML+CSS 直角表格复古设计 · SQLite 数据驱动
     </div>
 

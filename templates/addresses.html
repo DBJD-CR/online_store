@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 
+{# 
+  鲜时家网上商城 - 地址簿模板
+  主要功能：展示买家现存的地址薄明细并提供快捷删除，以及右侧表单提交新增地址。
+#}
+
 {% block title %}我的收货地址 - 鲜时家{% endblock %}
 
 {% block content %}
@@ -7,12 +12,12 @@
     .address-container {
         overflow: hidden;
     }
-    
+
     .address-left {
         float: left;
         width: 580px;
     }
-    
+
     .address-right {
         float: right;
         width: 360px;
@@ -20,7 +25,7 @@
         border: 1px solid #CCCCCC;
         padding: 15px;
     }
-    
+
     .address-form-title {
         font-family: "Microsoft YaHei", "微软雅黑";
         font-size: 14px;
@@ -30,17 +35,17 @@
         padding-bottom: 5px;
         margin-bottom: 15px;
     }
-    
+
     .form-group-addr {
         margin-bottom: 10px;
     }
-    
+
     .form-group-addr label {
         display: block;
         margin-bottom: 5px;
         font-weight: bold;
     }
-    
+
     .form-group-addr input {
         width: 100%;
         height: 24px;
@@ -49,7 +54,7 @@
         box-sizing: border-box;
         font-size: 12px;
     }
-    
+
     .form-group-addr textarea {
         width: 100%;
         height: 80px;
@@ -60,21 +65,28 @@
         font-family: inherit;
         font-size: 12px;
     }
+
+    .address-form-actions {
+        margin-top: 15px;
+        text-align: center;
+    }
 </style>
 
 <div class="address-container">
+    <!-- 左半区：买家已添加的地址列表 -->
     <div class="address-left">
-        <h2 style="font-family: 'Microsoft YaHei', '微软雅黑'; color: #333333; margin-top:0;">📋 我的收货地址簿</h2>
-        <p style="color:#666666;">您最多可以保存多个收货地址，下单时可直接点选，极速发货。</p>
-        
+        <h2 class="page-title">📋 我的收货地址簿</h2>
+        <p class="page-desc">您最多可以保存多个收货地址，下单时可直接点选，极速发货。</p>
+
         {% if addresses %}
+            <!-- 地址清单直角表 -->
             <table class="retro-table">
                 <thead>
                     <tr>
-                        <th style="width: 80px;">收货人</th>
-                        <th style="width: 110px;">联系电话</th>
+                        <th class="col-name-sm">收货人</th>
+                        <th class="col-phone">联系电话</th>
                         <th>收货地址</th>
-                        <th style="width: 80px;">操作</th>
+                        <th class="col-action">操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,24 +94,27 @@
                         <tr>
                             <td><strong>{{ addr.name }}</strong></td>
                             <td>{{ addr.phone }}</td>
-                            <td style="text-align: left;">
-                                <span style="color:#FF6600; font-weight:bold;">[{{ addr.province }} {{ addr.city }} {{ addr.district }}]</span> 
+                            <td class="cell-left">
+                                <span class="address-region">[{{ addr.province }} {{ addr.city }} {{ addr.district }}]</span>
                                 {{ addr.detail }}
                             </td>
                             <td>
-                                <a href="{{ url_for('delete_address', addr_id=addr.id) }}" onclick="return confirm('确认删除该收货地址吗？');" style="color:#CC0000; font-weight:bold;">删除</a>
+                                <!-- 触发地址删除确认框 -->
+                                <a href="{{ url_for('delete_address', addr_id=addr.id) }}" onclick="return confirm('确认删除该收货地址吗？');" class="delete-link">删除</a>
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% else %}
-            <div style="background-color: #FFFDF0; border: 1px dashed #FFCC66; padding: 20px; text-align: center; font-weight: bold; color: #FF6600;">
+            <!-- 缺省状态：无地址 -->
+            <div class="empty-tip-box">
                 📢 您目前还没有添加任何收货地址噢，请在右侧快捷添加一个！
             </div>
         {% endif %}
     </div>
-    
+
+    <!-- 右半区：快捷填加新地址表单面板 -->
     <div class="address-right">
         <div class="address-form-title">➕ 新增收货地址</div>
         <form action="{{ url_for('addresses') }}" method="POST">
@@ -107,24 +122,24 @@
                 <label>收货人姓名</label>
                 <input type="text" name="name" required placeholder="请填写收件人姓名">
             </div>
-            
+
             <div class="form-group-addr">
                 <label>联系电话</label>
                 <input type="text" name="phone" required placeholder="请填写收件人联系电话">
             </div>
-            
+
             <div class="form-group-addr">
                 <label>收货地址</label>
                 <textarea name="detail" required placeholder="请填写完整地址。例如：上海市浦东新区张江高科祖冲之路123号"></textarea>
             </div>
-            
-            <!-- 隐藏字段，将单文本拆分映射到后端数据库的 province, city, district -->
+
+            <!-- 将省、市、区设置为隐式默认值，简化填写负担，用户在详情中一次填完 -->
             <input type="hidden" name="province" value="其他">
             <input type="hidden" name="city" value="其他">
             <input type="hidden" name="district" value="其他">
-            
-            <div style="margin-top:15px; text-align:center;">
-                <button type="submit" class="btn-retro" style="width: 100%;">确认保存地址</button>
+
+            <div class="address-form-actions">
+                <button type="submit" class="btn-retro btn-block">确认保存地址</button>
             </div>
         </form>
     </div>

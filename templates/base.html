@@ -1,334 +1,17 @@
+{# 
+  鲜时家网上商城 - 通用基础母版模板
+  定义商城系统的前台统一骨架，包含顶栏、经典LOGO头部、导航栏、广告挂件、闪存提示区域以及底栏版权声明。
+#}
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %} - 鲜时家官方网上商城</title>
+    <!-- 引入前后台通用的 CSS 样式表 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
     <!-- 引入复古中带有像素感和凡客/早版淘宝感觉的样式 -->
     <style>
-        body {
-            font-family: "SimSun", "宋体", Arial, sans-serif;
-            font-size: 12px;
-            color: #333333;
-            background-color: #F4F4F4;
-            margin: 0;
-            padding: 0;
-        }
-        
-        a {
-            color: #0000FF;
-            text-decoration: none;
-        }
-        
-        a:hover {
-            color: #FF0000;
-            text-decoration: underline;
-        }
-        
         /* 经典顶栏 */
-        .top-bar {
-            background-color: #F7F7F7;
-            border-bottom: 1px solid #DDDDDD;
-            height: 30px;
-            line-height: 30px;
-            font-size: 12px;
-        }
-        
-        .container {
-            width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .top-bar .welcome {
-            float: left;
-        }
-        
-        .top-bar .user-actions {
-            float: right;
-        }
-        
-        .top-bar .user-actions a {
-            margin-left: 10px;
-        }
-        
-        /* 经典头部与LOGO */
-        .header {
-            background-color: #FFFFFF;
-            padding: 20px 0;
-            border-bottom: 3px solid #C80A1E; /* 经典凡客红/淘宝红 */
-            overflow: hidden;
-        }
-        
-        .header-logo {
-            float: left;
-            width: 150px;
-            height: 60px;
-            color: #FFFFFF;
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            line-height: 60px;
-            font-family: "Microsoft YaHei", "微软雅黑";
-        }
-        
-        .header-search {
-            float: left;
-            margin-left: 80px;
-            margin-top: 15px;
-        }
-        
-        .header-search input[type="text"] {
-            width: 350px;
-            height: 26px;
-            border: 2px solid #C80A1E;
-            padding: 0 5px;
-            outline: none;
-            float: left;
-            font-size: 12px;
-        }
-        
-        .header-search button {
-            background-color: #C80A1E;
-            color: #FFFFFF;
-            border: none;
-            height: 30px;
-            width: 70px;
-            font-weight: bold;
-            cursor: pointer;
-            float: left;
-            font-size: 12px;
-        }
-        
-        .header-cart {
-            float: right;
-            margin-top: 15px;
-            background-color: #F8F8F8;
-            border: 1px solid #CCCCCC;
-            height: 28px;
-            line-height: 28px;
-            padding: 0 15px;
-            font-weight: bold;
-        }
-        
-        /* 导航栏 */
-        .nav-bar {
-            background-color: #C80A1E;
-            height: 35px;
-            line-height: 35px;
-        }
-        
-        .nav-bar ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .nav-bar li {
-            float: left;
-        }
-        
-        .nav-bar li a {
-            color: #FFFFFF;
-            font-weight: bold;
-            font-size: 14px;
-            padding: 0 25px;
-            display: block;
-        }
-        
-        .nav-bar li a:hover, .nav-bar li.active a {
-            background-color: #A20818;
-            text-decoration: none;
-        }
-        
-        /* 经典通知/跑马灯 */
-        .marquee-container {
-            background-color: #FFF7EB;
-            border: 1px solid #FFD8A6;
-            color: #FF6600;
-            padding: 5px 10px;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-        
-        /* 主体内容 */
-        .main-content {
-            margin: 15px 0;
-            overflow: hidden;
-        }
-        
-        /* 经典底部 */
-        .footer {
-            border-top: 2px solid #DDDDDD;
-            background-color: #FFFFFF;
-            padding: 20px 0;
-            margin-top: 30px;
-            text-align: center;
-            color: #666666;
-            line-height: 20px;
-        }
-        
-        .footer .footer-links {
-            margin-bottom: 10px;
-        }
-        
-        .footer .footer-links a {
-            color: #666666;
-            margin: 0 10px;
-        }
-        
-        .footer .copyright {
-            font-size: 11px;
-        }
-        
-        /* 经典提示消息 - 进行了精美的错误提示动画和嵌入式排版升级 */
-        .flash-messages {
-            margin: 15px 0;
-            perspective: 1000px;
-        }
-        
-        .flash-message {
-            padding: 12px 20px;
-            border: 1px solid;
-            margin-bottom: 12px;
-            font-weight: bold;
-            font-size: 13px;
-            position: relative;
-            animation: slideDownFlash 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, shakeFlash 0.4s ease-in-out 0.5s;
-        }
-        
-        .flash-message.success {
-            background-color: #E2F5E2;
-            border-color: #B5E4B5;
-            color: #008000;
-            box-shadow: 0 4px 6px rgba(0,128,0,0.1);
-        }
-        
-        .flash-message.error {
-            background-color: #FFF2F2;
-            border-color: #FFC4C4;
-            color: #CC0000;
-            box-shadow: 0 4px 8px rgba(204,0,0,0.1);
-            border-left: 5px solid #CC0000; /* 加粗左边框，警示感更强 */
-        }
-    
-        /* 错误提示的动感滑入与微微颤抖动画，瞬间吸引视线 */
-        @keyframes slideDownFlash {
-            0% {
-                opacity: 0;
-                transform: translateY(-20px) scale(0.95);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-    
-        @keyframes shakeFlash {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-6px); }
-            75% { transform: translateX(6px); }
-        }
-        
-        /* 表格样式 */
-        table.retro-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #CCCCCC;
-            background-color: #FFFFFF;
-            margin-bottom: 15px;
-        }
-        
-        table.retro-table th {
-            background-color: #F2F2F2;
-            border: 1px solid #CCCCCC;
-            padding: 8px;
-            font-weight: bold;
-            text-align: center;
-        }
-        
-        table.retro-table td {
-            border: 1px solid #CCCCCC;
-            padding: 8px;
-            text-align: center;
-        }
-        
-        /* 直角经典按钮 */
-        .btn-retro {
-            background-color: #C80A1E;
-            color: #FFFFFF;
-            border: 1px solid #A20818;
-            padding: 5px 15px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .btn-retro:hover {
-            background-color: #FF0000;
-            text-decoration: none;
-            color: #FFFFFF;
-        }
-        
-        .btn-retro-gray {
-            background-color: #F0F0F0;
-            color: #333333;
-            border: 1px solid #CCCCCC;
-            padding: 5px 15px;
-            font-size: 12px;
-            cursor: pointer;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .btn-retro-gray:hover {
-            background-color: #E0E0E0;
-            text-decoration: none;
-            color: #333333;
-        }
-        
-        .btn-retro-disabled {
-            background-color: #EAEAEA;
-            color: #999999;
-            border: 1px solid #CCCCCC;
-            padding: 5px 15px;
-            font-size: 12px;
-            cursor: not-allowed;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        /* 经典的复古背景壁纸或两侧装饰框，用斜线暗纹填充，让整个网站在大屏显示器下富有经典的10年代饱满感，不再空空如也！ */
-        body {
-            background-image: radial-gradient(#E8E8E8 1px, transparent 0);
-            background-size: 16px 16px;
-            background-color: #F4F4F4;
-        }
-
-        /* 此外，我们在主体容器外围加一个非常经典的复古阴影与虚线框，在大屏下勾勒出完美的版式边界 */
-        .container {
-            width: 1200px; /* 大幅度放大主容器至 1200px，让布局宽松，商品陈列不再拥挤折行喵！ */
-            margin: 0 auto;
-            background-color: #FFFFFF;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        /* 经典右侧漂浮窗广告 - 使用 fixed 固定，并且限制最大距离，使其贴合 1200px 宽度容器的右侧，避免在大屏幕下飘走 */
-        #floating-ad {
-            position: fixed;
-            width: 110px;
-            border: 2px dashed #C80A1E;
-            background-color: #FFFDF0;
-            padding: 8px;
-            z-index: 1000;
-            text-align: center;
-            top: 200px;
-            /* 居中定位，然后在 1200px 容器右侧再偏离一点，大屏幕下也能保持在主体右侧紧贴 */
-            left: 50%;
-            margin-left: 615px; /* 1200/2 = 600px，再加 15px 间距 */
-        }
-
-        /* 顶栏独立背景 */
         .top-bar {
             background-color: #F7F7F7;
             border-bottom: 1px solid #DDDDDD;
@@ -342,7 +25,19 @@
             background-color: transparent;
         }
 
-        /* 头部独立背景 */
+        .top-bar .welcome {
+            float: left;
+        }
+
+        .top-bar .user-actions {
+            float: right;
+        }
+
+        .top-bar .user-actions a {
+            margin-left: 10px;
+        }
+
+        /* 经典头部与LOGO */
         .header {
             background-color: #FFFFFF;
             padding: 20px 0;
@@ -355,7 +50,77 @@
             background-color: transparent;
         }
 
-        /* 导航栏独立背景 */
+        .header-logo {
+            float: left;
+            width: 200px;
+            height: 60px;
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 60px;
+            font-family: "Microsoft YaHei", "微软雅黑";
+        }
+
+        .logo-img {
+            height: 60px;
+            width: 60px;
+            float: left;
+            border: 1px solid #CCCCCC;
+            box-sizing: border-box;
+            background-color: #FFFFFF;
+        }
+
+        .logo-text {
+            float: left;
+            margin-left: 10px;
+            color: #C80A1E;
+            font-size: 24px;
+            font-weight: bold;
+            line-height: 60px;
+            font-family: "Microsoft YaHei", "微软雅黑";
+        }
+
+        .header-search {
+            float: left;
+            margin-left: 80px;
+            margin-top: 15px;
+        }
+
+        .header-search input[type="text"] {
+            width: 350px;
+            height: 26px;
+            border: 2px solid #C80A1E;
+            padding: 0 5px;
+            outline: none;
+            float: left;
+            font-size: 12px;
+        }
+
+        .header-search button {
+            background-color: #C80A1E;
+            color: #FFFFFF;
+            border: none;
+            height: 30px;
+            width: 70px;
+            font-weight: bold;
+            cursor: pointer;
+            float: left;
+            font-size: 12px;
+        }
+
+        .header-cart {
+            float: right;
+            margin-top: 15px;
+            background-color: #F8F8F8;
+            border: 1px solid #CCCCCC;
+            height: 28px;
+            line-height: 28px;
+            padding: 0 15px;
+            font-weight: bold;
+        }
+
+        /* 导航栏 */
         .nav-bar {
             background-color: #C80A1E;
             height: 35px;
@@ -367,7 +132,40 @@
             background-color: transparent;
         }
 
-        /* 经典底部独立背景 */
+        .nav-bar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-bar li {
+            float: left;
+        }
+
+        .nav-bar li a {
+            color: #FFFFFF;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 0 25px;
+            display: block;
+        }
+
+        .nav-bar li a:hover, .nav-bar li.active a {
+            background-color: #A20818;
+            text-decoration: none;
+        }
+
+        /* 经典通知/跑马灯 */
+        .marquee-container {
+            background-color: #FFF7EB;
+            border: 1px solid #FFD8A6;
+            color: #FF6600;
+            padding: 5px 10px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        /* 经典底部 */
         .footer {
             border-top: 2px solid #DDDDDD;
             background-color: #FFFFFF;
@@ -383,7 +181,73 @@
             background-color: transparent;
         }
 
-        /* 经典左侧漂浮对称挂件 - 客服与新手指南，彻底填充大屏幕左侧的空白，使其对称且美观！ */
+        .footer .footer-links {
+            margin-bottom: 10px;
+        }
+
+        .footer .footer-links a {
+            color: #666666;
+            margin: 0 10px;
+        }
+
+        .footer .copyright {
+            font-size: 11px;
+        }
+
+        /* 经典右侧漂浮窗广告 */
+        #floating-ad {
+            position: fixed;
+            width: 110px;
+            border: 2px dashed #C80A1E;
+            background-color: #FFFDF0;
+            padding: 8px;
+            z-index: 1000;
+            text-align: center;
+            top: 200px;
+            left: 50%;
+            margin-left: 615px;
+        }
+
+        #floating-ad h4 {
+            margin: 0 0 5px 0;
+            color: #C80A1E;
+            font-size: 13px;
+            border-bottom: 1px solid #FFCCCC;
+            padding-bottom: 3px;
+        }
+
+        #floating-ad p {
+            margin: 5px 0;
+            font-size: 11px;
+            line-height: 14px;
+        }
+
+        #floating-ad .close-btn {
+            display: block;
+            margin-top: 5px;
+            color: #999999;
+            font-size: 10px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        #floating-ad .ad-title {
+            color: #C80A1E;
+            font-weight: bold;
+        }
+
+        #floating-ad .ad-badge {
+            color: #008000;
+            font-size: 10px;
+        }
+
+        #floating-ad hr {
+            border: none;
+            border-top: 1px dashed #FFCCCC;
+            margin: 5px 0;
+        }
+
+        /* 经典左侧漂浮对称挂件 */
         #floating-left-help {
             position: fixed;
             width: 110px;
@@ -394,7 +258,7 @@
             text-align: center;
             top: 200px;
             left: 50%;
-            margin-left: -740px; /* 随着 1200px 容器往左偏 */
+            margin-left: -740px;
         }
 
         #floating-left-help h4 {
@@ -419,37 +283,31 @@
             text-decoration: underline;
             cursor: pointer;
         }
-        
-        #floating-ad h4 {
-            margin: 0 0 5px 0;
-            color: #C80A1E;
-            font-size: 13px;
-            border-bottom: 1px solid #FFCCCC;
-            padding-bottom: 3px;
+
+        #floating-left-help .help-title {
+            color: #005EA7;
+            font-weight: bold;
         }
-        
-        #floating-ad p {
+
+        #floating-left-help hr {
+            border: none;
+            border-top: 1px dashed #B3D7FF;
             margin: 5px 0;
-            font-size: 11px;
-            line-height: 14px;
         }
-        
-        #floating-ad .close-btn {
-            display: block;
-            margin-top: 5px;
-            color: #999999;
-            font-size: 10px;
-            text-decoration: underline;
-            cursor: pointer;
+
+        .admin-link {
+            color: #FF6600;
+            font-weight: bold;
         }
     </style>
-    <!-- 使用 10 年代最红的 jQuery -->
+    <!-- 使用 10 年代最红的 jQuery，处理前台 AJAX 交互与 DOM 操作 -->
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-    <script src="/static/js/captcha.js"></script>
+    <!-- 引入自定义图形验证码 JS 库 -->
+    <script src="{{ url_for('static', filename='js/captcha.js') }}"></script>
 </head>
 <body>
 
-    <!-- 经典顶栏 -->
+    <!-- 顶栏状态区：显示用户登录欢迎语、订单入口及管理后台快速导航 -->
     <div class="top-bar">
         <div class="container">
             <div class="welcome">
@@ -457,42 +315,42 @@
             </div>
             <div class="user-actions">
                 {% if current_user %}
-                    <span>当前登录：<strong style="color:#C80A1E;">{{ current_user.username }}</strong></span> |
+                    <span>当前登录：<strong class="text-brand">{{ current_user.username }}</strong></span> |
                     <a href="{{ url_for('orders') }}">我的订单</a> |
                     <a href="{{ url_for('addresses') }}">收货地址</a> |
-                    <a href="{{ url_for('admin_products') }}" target="_blank" style="color:#FF6600; font-weight:bold;">极简管理后台</a> |
+                    <a href="{{ url_for('admin_products') }}" target="_blank" class="admin-link">极简管理后台</a> |
                     <a href="{{ url_for('logout') }}">安全退出</a>
                 {% else %}
                     <a href="{{ url_for('login') }}">请登录</a> |
-                    <a href="{{ url_for('register') }}" style="color: #FF6600;">免费注册</a> |
-                    <a href="{{ url_for('admin_products') }}" target="_blank" style="color:#666666;">管理后台入口</a>
+                    <a href="{{ url_for('register') }}" class="text-highlight">免费注册</a> |
+                    <a href="{{ url_for('admin_products') }}" target="_blank" class="text-muted">管理后台入口</a>
                 {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- 经典头部与LOGO -->
+    <!-- LOGO 及商城全局搜索、购物车快速角标展示区 -->
     <div class="header">
         <div class="container">
-            <div class="header-logo" style="width: 200px;">
-                <img src="/static/images/logo.jpg" alt="鲜时家" style="height: 60px; width: 60px; float: left; border: 1px solid #CCCCCC; box-sizing: border-box; background-color: #FFFFFF;">
-                <span style="float: left; margin-left: 10px; color: #C80A1E; font-size: 24px; font-weight: bold; line-height: 60px; font-family: 'Microsoft YaHei', '微软雅黑';">鲜时家</span>
+            <div class="header-logo">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="鲜时家" class="logo-img">
+                <span class="logo-text">鲜时家</span>
             </div>
-            
+
             <div class="header-search">
                 <form action="#" method="GET" onsubmit="alert('10年代搜索引擎正在开发中喵！支持精确搜索！'); return false;">
                     <input type="text" name="q" placeholder="请输入商品关键字，如：日期记忆保鲜盒...">
                     <button type="submit">搜 索</button>
                 </form>
             </div>
-            
+
             <div class="header-cart">
-                🛒 <a href="{{ url_for('cart') }}">我的购物车 (<span style="color:#C80A1E;" id="cart-count-header">{{ cart_count }}</span>) 件</a>
+                🛒 <a href="{{ url_for('cart') }}">我的购物车 (<span class="text-brand" id="cart-count-header">{{ cart_count }}</span>) 件</a>
             </div>
         </div>
     </div>
 
-    <!-- 导航栏 -->
+    <!-- 经典横向导航条，显示商城主模块页面 -->
     <div class="nav-bar">
         <div class="container">
             <ul>
@@ -505,7 +363,7 @@
         </div>
     </div>
 
-    <!-- 闪存消息提示（除了登录注册模块在框内渲染外，其他普通页面依旧在顶部渲染，但排除登录注册页面避免双重渲染） -->
+    <!-- 闪存消息提示区：用于 Flask 闪现的 Success 或 Error 动作状态回调展示 -->
     {% if not ('/login' in request.path or '/register' in request.path) %}
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -520,34 +378,34 @@
     </div>
     {% endif %}
 
-    <!-- 主体区域 -->
-    <div class="container main-content" style="padding: 15px; box-sizing: border-box; background-color: #FFFFFF;">
+    <!-- 页面具体内容插槽 block content -->
+    <div class="container main-content">
         {% block content %}{% endblock %}
     </div>
 
-    <!-- 经典左侧对称帮助挂件 -->
+    <!-- 经典左侧悬浮指南小挂件 -->
     <div id="floating-left-help">
         <h4>新手指南 📘</h4>
         <p><strong>10秒上手</strong></p>
-        <p style="color:#005EA7; font-weight:bold;">日期拨盘教学</p>
-        <p style="color:#666666; font-size:10px;">① 装入保鲜盒<br>② 转动时间标<br>③ 随时防过期</p>
-        <hr style="border:none; border-top:1px dashed #B3D7FF; margin:5px 0;">
-        <p style="font-size:10px; color:#666666;">品质保鲜热线:<br>400-123-456</p>
+        <p class="help-title">日期拨盘教学</p>
+        <p class="text-muted text-small">① 装入保鲜盒<br>② 转动时间标<br>③ 随时防过期</p>
+        <hr>
+        <p class="text-muted text-small">品质保鲜热线:<br>400-123-456</p>
         <span class="close-btn" onclick="$('#floating-left-help').hide();">关闭挂件 [x]</span>
     </div>
 
-    <!-- 经典右侧漂浮窗广告 -->
+    <!-- 经典右侧悬浮限时促销广告窗 -->
     <div id="floating-ad">
         <h4>限时特惠 🧧</h4>
         <p><strong>鲜时家</strong><br>新品大促</p>
-        <p style="color:#C80A1E; font-weight:bold;">保鲜盒低至9.9元</p>
-        <p style="color:#008000; font-size:10px;">★ 冰箱叠放王 ★</p>
-        <hr style="border:none; border-top:1px dashed #FFCCCC; margin:5px 0;">
-        <p style="font-size:10px; color:#666666;">咨询客服QQ:<br>3574179328</p>
+        <p class="ad-title">保鲜盒低至9.9元</p>
+        <p class="ad-badge">★ 冰箱叠放王 ★</p>
+        <hr>
+        <p class="text-muted text-small">咨询客服QQ:<br>3574179328</p>
         <span class="close-btn" onclick="$('#floating-ad').hide();">关闭广告 [x]</span>
     </div>
 
-    <!-- 经典底部 -->
+    <!-- 页脚版权及声明信息栏 -->
     <div class="footer">
         <div class="container">
             <div class="footer-links">
@@ -564,9 +422,5 @@
         </div>
     </div>
 
-    <!-- 10年代经典飘窗广告随滚动条上下平滑滚动的 jQuery 代码 (如果使用了 fixed 布局，这里可留作兜底或直接废弃) -->
-    <script>
-        // 已经通过 CSS fixed + left:50% + margin-left 完美解决大屏割裂问题喵！
-    </script>
 </body>
 </html>

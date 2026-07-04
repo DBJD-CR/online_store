@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 
+{# 
+  鲜时家网上商城 - 用户认证基础模板
+  主要功能：定义登录与注册页面共同的表单板式样式及图形验证码校验的脚本框架。
+#}
+
 {% block title %}{% block auth_title %}{% endblock %} - 鲜时家{% endblock %}
 
 {% block content %}
@@ -10,8 +15,9 @@
         background-color: #FFFFFF;
         border: 1px solid #CCCCCC;
         padding: 30px;
+        position: relative;
     }
-    
+
     .auth-title {
         font-family: "Microsoft YaHei", "微软雅黑";
         font-size: 18px;
@@ -21,12 +27,20 @@
         padding-bottom: 10px;
         margin-bottom: 25px;
     }
-    
+
+    .auth-flash-messages {
+        margin: 0 0 20px 0;
+    }
+
+    .auth-flash-messages .flash-message {
+        margin-bottom: 0;
+    }
+
     .form-group {
         margin-bottom: 15px;
         overflow: hidden;
     }
-    
+
     .form-label {
         float: left;
         width: 80px;
@@ -35,12 +49,12 @@
         padding-right: 15px;
         font-weight: bold;
     }
-    
+
     .form-input-container {
         float: left;
         width: 320px;
     }
-    
+
     .form-input {
         width: 200px;
         height: 24px;
@@ -48,23 +62,39 @@
         padding: 0 5px;
         outline: none;
     }
-    
-    /* 图形验证码画布 */
+
+    .captcha-input {
+        width: 80px;
+    }
+
     #captcha-canvas {
         border: 1px solid #CCCCCC;
         vertical-align: middle;
         background-color: #F8F8F8;
         cursor: pointer;
     }
+
+    .form-actions {
+        margin-top: 25px;
+    }
+
+    .btn-auth-submit {
+        font-size: 14px;
+        padding: 8px 25px;
+    }
+
+    .auth-footer {
+        margin-top: 15px;
+    }
 </style>
 
-<div class="auth-box" style="position: relative;">
-    <!-- 在登录框内部直接嵌入错误/提示消息容器，使其位置极其紧凑与显眼，第一时间抓住视线 -->
+<div class="auth-box">
+    <!-- 局部闪现提示消息渲染：方便就近反馈登录失败原因 -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="flash-messages" style="margin: 0 0 20px 0;">
+            <div class="flash-messages auth-flash-messages">
                 {% for category, message in messages %}
-                    <div class="flash-message {{ category }}" style="margin-bottom:0;">⚠️ 提示：{{ message }}</div>
+                    <div class="flash-message {{ category }}">⚠️ 提示：{{ message }}</div>
                 {% endfor %}
             </div>
         {% endif %}
@@ -73,7 +103,8 @@
     <div class="auth-title">
         🔑 {% block auth_header %}{% endblock %}
     </div>
-    
+
+    <!-- 表单提交绑定：前端先校验图形验证码人机通过后再向上游提交请求 -->
     <form action="{% block auth_action %}{% endblock %}" method="POST" id="auth-form" onsubmit="return validateForm();">
         <div class="form-group">
             <div class="form-label">用户名</div>
@@ -81,30 +112,31 @@
                 <input type="text" name="username" id="username" class="form-input" required placeholder="请输入用户名">
             </div>
         </div>
-        
+
         <div class="form-group">
             <div class="form-label">密  码</div>
             <div class="form-input-container">
                 <input type="password" name="password" id="password" class="form-input" required placeholder="请输入密码">
             </div>
         </div>
-        
+
+        <!-- 针对注册页面的个性化扩展输入字段插槽 -->
         {% block extra_fields %}{% endblock %}
-        
-        <!-- 统一的图形验证码安全机制 -->
+
+        <!-- 公共图形验证码输入框及画布渲染区域 -->
         <div class="form-group">
             <div class="form-label">验证码</div>
             <div class="form-input-container">
-                <input type="text" id="captcha-input" class="form-input" style="width: 80px;" required placeholder="区分大小写">
+                <input type="text" id="captcha-input" class="form-input captcha-input" required placeholder="区分大小写">
                 <canvas id="captcha-canvas" width="100" height="28" title="点击更换验证码"></canvas>
             </div>
         </div>
-        
-        <div class="form-group" style="margin-top: 25px;">
+
+        <div class="form-group form-actions">
             <div class="form-label">&nbsp;</div>
             <div class="form-input-container">
-                <button type="submit" class="btn-retro" style="font-size:14px; padding:8px 25px;">{% block submit_btn_text %}{% endblock %}</button>
-                <div style="margin-top:15px;">
+                <button type="submit" class="btn-retro btn-auth-submit">{% block submit_btn_text %}{% endblock %}</button>
+                <div class="auth-footer">
                     {% block auth_footer_links %}{% endblock %}
                 </div>
             </div>
@@ -113,23 +145,29 @@
 </div>
 
 <script>
+    // 初始化加载时自动渲染扭曲随机验证码
     $(document).ready(function() {
-        // 初始化验证码
         CaptchaGenerator.init("captcha-canvas", "captcha-input");
     });
 
+    /**
+     * 前端表单拦截校验主入口。
+     * 先后触发页面扩展项验证（如密码确认）和验证码精准性验证。
+     * @returns {boolean} 是否允许提交到后端。
+     */
     function validateForm() {
-        // 执行额外表单校验（例如注册时校验两次密码）
+        // 调用注册等子模板特有的自定义额外校验规则
         if (typeof extraValidation === 'function') {
             if (!extraValidation()) {
                 return false;
             }
         }
-        
-        // 校验统一图形验证码
+
         var userCaptcha = $("#captcha-input").val();
+        // 前端调用验证码库进行一致性核对
         if (!CaptchaGenerator.validate(userCaptcha)) {
             alert("验证码输入错误，请重新输入！");
+            // 校验失败后自动重构生成一张新图，并清空输入框
             CaptchaGenerator.generate(document.getElementById("captcha-canvas"));
             $("#captcha-input").val("");
             return false;

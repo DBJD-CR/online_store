@@ -1,3 +1,8 @@
+{# 
+  鲜时家网上商城 - 用户注册页面模板
+  继承自验证基模板 auth_base.html，在此基础上扩展了密码二次确认框、商家激活邀请码填入框、
+  商城服务协议与隐私条款选框，并通过脚本保证注册逻辑的客户端二次校验。
+#}
 {% extends 'auth_base.html' %}
 
 {% block auth_title %}免费注册{% endblock %}
@@ -5,6 +10,7 @@
 {% block auth_action %}{{ url_for('register') }}{% endblock %}
 
 {% block extra_fields %}
+<!-- 额外注册字段：确认密码输入框 -->
 <div class="form-group">
     <div class="form-label">确认密码</div>
     <div class="form-input-container">
@@ -12,19 +18,19 @@
     </div>
 </div>
 
+<!-- 额外注册字段：管理员激活邀请码，用于在普通用户中激活管理员角色 -->
 <div class="form-group">
     <div class="form-label">管理员码</div>
     <div class="form-input-container">
-        <!-- 商家特有的邀请激活码输入框，普通买家不填写即为普通用户 -->
         <input type="text" name="admin_code" id="admin_code" class="form-input" placeholder="非必填。商家注册请填激活邀请码">
     </div>
 </div>
 
-<!-- 经典的 10 年代多滚动条式“鲜时家商城服务条款与用户保密协议”文本区域 -->
-<div class="form-group" style="margin-top: 10px;">
+<!-- 服务协议条款展示与确认选框 -->
+<div class="form-group margin-top-10">
     <div class="form-label">服务协议</div>
     <div class="form-input-container">
-        <div style="width: 200px; height: 90px; border: 1px solid #CCCCCC; overflow-y: scroll; padding: 8px; background-color: #FAFAFA; font-size: 10px; line-height: 14px; color: #777777; text-align: left; box-sizing: border-box;">
+        <div class="protocol-box">
             <strong>【鲜时家网上商城服务使用协议与隐私保护条款】</strong><br>
             版本更新日期：2026年05月30日<br>
             版本生效日期：2026年05月30日<br><br>
@@ -44,15 +50,19 @@
             4.2 在法律允许的最大范围内，如因服务器升级、数据库并发锁死、网络通信波动或遭遇黑客攻击等非平台主观过错造成的交易记录丢失或系统暂停访问，鲜时家均免于承担经济赔偿责任。<br>
             4.3 本协议之解释与争议解决均适用中华人民共和国法律。如发生争议，双方应首先开展友好协商，协商不成的，由本平台所在地有管辖权的人民法院诉讼管辖。
         </div>
-        <div style="margin-top: 8px;">
-            <input type="checkbox" id="agree-protocol" required style="vertical-align: middle; margin: 0 5px 0 0;">
-            <label for="agree-protocol" style="font-weight: bold; cursor: pointer; font-size: 11px; color:#666;">我已阅读并同意以上《服务协议》</label>
+        <div class="protocol-agree">
+            <input type="checkbox" id="agree-protocol" required>
+            <label for="agree-protocol">我已阅读并同意以上《服务协议》</label>
         </div>
     </div>
 </div>
 
 <script>
-    // 定义注册页面特有的校验
+    /**
+     * 注册表单额外校验逻辑。
+     * 检查两次密码输入是否完全一致，并核验是否勾选了同意服务协议条款。
+     * @returns {boolean} 校验通过返回 true，否则返回 false 并弹窗拦截。
+     */
     function extraValidation() {
         var password = $("#password").val();
         var confirmPassword = $("#confirm_password").val();
@@ -60,8 +70,7 @@
             alert("两次输入的密码不一致！");
             return false;
         }
-        
-        // 校验是否勾选了服务协议
+
         if (!document.getElementById("agree-protocol").checked) {
             alert("请先阅读并勾选同意《服务协议》！");
             return false;
@@ -74,5 +83,6 @@
 {% block submit_btn_text %}同意服务协议并注册{% endblock %}
 
 {% block auth_footer_links %}
+<!-- 引导已拥有账号的买家返回登录 -->
 已有账号？<a href="{{ url_for('login') }}">立即登录</a>
 {% endblock %}
