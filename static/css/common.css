@@ -1,0 +1,679 @@
+/* =========================================================
+   鲜时家网上商城 - 公共样式
+   抽取前后台通用样式，保持原有视觉数值不变。
+   ========================================================= */
+
+/* -------------------- 基础重置 -------------------- */
+body {
+    /* 采用复古的中文字体及宋体作为基础后备 */
+    font-family: "SimSun", "宋体", Arial, sans-serif;
+    font-size: 12px;
+    color: #333333;
+    background-color: #F4F4F4;
+    margin: 0;
+    padding: 0;
+    /* 背景使用经典的波点虚化栅格网格纹理 */
+    background-image: radial-gradient(#E8E8E8 1px, transparent 0);
+    background-size: 16px 16px;
+}
+
+/* 通用链接超链接样式 */
+a {
+    color: #0000FF;
+    text-decoration: none;
+}
+
+/* 链接悬停响应样式 */
+a:hover {
+    color: #FF0000;
+    text-decoration: underline;
+}
+
+/* -------------------- 布局容器 -------------------- */
+.container {
+    /* 版心宽度固定为 1200px，左右居中 */
+    width: 1200px;
+    margin: 0 auto;
+    background-color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 主内容包裹区 */
+.main-content {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    padding: 15px;
+    box-sizing: border-box;
+    background-color: #FFFFFF;
+}
+
+/* 用于清除浮动的经典工具类 */
+.clearfix {
+    clear: both;
+}
+
+/* -------------------- Flash 提示消息样式 -------------------- */
+.flash-messages {
+    margin: 15px 0;
+    perspective: 1000px; /* 3D透视，用于提升动画质感 */
+}
+
+/* 单条消息基本样式，包含入场动画 */
+.flash-message {
+    padding: 12px 20px;
+    border: 1px solid;
+    margin-bottom: 12px;
+    font-weight: bold;
+    font-size: 13px;
+    position: relative;
+    /* 组合动画：先下滑弹跃入场，然后小幅摇晃引起注意 */
+    animation: slideDownFlash 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, shakeFlash 0.4s ease-in-out 0.5s;
+}
+
+/* 成功状态提示框样式 */
+.flash-message.success {
+    background-color: #E2F5E2;
+    border-color: #B5E4B5;
+    color: #008000;
+    box-shadow: 0 4px 6px rgba(0, 128, 0, 0.1);
+}
+
+/* 失败/错误状态提示框样式 */
+.flash-message.error {
+    background-color: #FFF2F2;
+    border-color: #FFC4C4;
+    color: #CC0000;
+    box-shadow: 0 4px 8px rgba(204, 0, 0, 0.1);
+    border-left: 5px solid #CC0000; /* 加强视觉警告边界 */
+}
+
+/* 消息下滑淡入入场动画 */
+@keyframes slideDownFlash {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 消息左右摇晃警示动画 */
+@keyframes shakeFlash {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+}
+
+/* 后台管理面板无动画简洁版提示消息 */
+.flash-messages-plain {
+    margin: 10px 0;
+}
+
+.flash-messages-plain .flash-message {
+    padding: 8px 15px;
+    margin-bottom: 8px;
+    animation: none;
+}
+
+/* -------------------- 复古表格控件 (retro-table) -------------------- */
+table.retro-table {
+    width: 100%;
+    border-collapse: collapse; /* 单元格合并边框 */
+    border: 1px solid #CCCCCC;
+    background-color: #FFFFFF;
+    margin-bottom: 15px;
+}
+
+table.retro-table th {
+    background-color: #F2F2F2;
+    border: 1px solid #CCCCCC;
+    padding: 8px;
+    font-weight: bold;
+    text-align: center;
+}
+
+table.retro-table td {
+    border: 1px solid #CCCCCC;
+    padding: 8px;
+    text-align: center;
+}
+
+/* 表格列宽配置类，用于前后台各类订单与商品表布局对齐 */
+.col-img-sm { width: 60px; }
+.col-img-md { width: 80px; }
+.col-img { width: 80px; }
+.col-name { }
+.col-name-sm { width: 80px; }
+.col-phone { width: 110px; }
+.col-sku { width: 150px; }
+.col-price { width: 100px; }
+.col-stock { width: 100px; }
+.col-qty { width: 120px; }
+.col-qty-narrow { width: 80px; }
+.col-subtotal { width: 100px; }
+.col-action { width: 80px; }
+.col-order-total { width: 120px; }
+.col-order-action { width: 130px; }
+.col-address { width: 250px; }
+.col-items { }
+.col-pay-method { width: 100px; }
+.col-shipping { width: 180px; }
+.col-product-id { width: 60px; }
+.col-product-type { width: 100px; }
+.col-product-status { width: 100px; }
+.col-product-op { width: 180px; }
+
+/* -------------------- 按钮样式 (基于复古质感) -------------------- */
+/* 复古红色主按钮 */
+.btn-retro {
+    background-color: #C80A1E;
+    color: #FFFFFF;
+    border: 1px solid #A20818;
+    padding: 5px 15px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-retro:hover {
+    background-color: #FF0000;
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+/* 复古浅灰次级按钮 */
+.btn-retro-gray {
+    background-color: #F0F0F0;
+    color: #333333;
+    border: 1px solid #CCCCCC;
+    padding: 5px 15px;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-retro-gray:hover {
+    background-color: #E0E0E0;
+    text-decoration: none;
+    color: #333333;
+}
+
+/* 复古禁用状态按钮 */
+.btn-retro-disabled {
+    background-color: #EAEAEA;
+    color: #999999;
+    border: 1px solid #CCCCCC;
+    padding: 5px 15px;
+    font-size: 12px;
+    cursor: not-allowed;
+    display: inline-block;
+    text-align: center;
+}
+
+/* 按钮变体与尺寸修饰符 */
+.btn-block {
+    width: 100%;
+}
+
+.btn-banner {
+    font-size: 14px;
+    padding: 8px 25px;
+}
+
+.btn-banner-orange {
+    background-color: #FF6600;
+    border-color: #E65C00;
+}
+
+.btn-checkout {
+    font-size: 16px;
+    padding: 8px 30px;
+    vertical-align: middle;
+}
+
+.btn-pay {
+    font-size: 16px;
+    padding: 10px 40px;
+    background-color: #008000;
+    border-color: #006600;
+}
+
+.btn-lg {
+    font-size: 16px;
+    padding: 10px 30px;
+}
+
+.btn-sm {
+    padding: 3px 10px;
+    font-size: 11px;
+}
+
+.btn-xs {
+    padding: 4px 15px;
+    font-size: 11px;
+}
+
+.btn-success {
+    background-color: #008000;
+    border-color: #006600;
+}
+
+.btn-orange {
+    background-color: #FF8000;
+    border-color: #CC6600;
+}
+
+/* -------------------- 订单状态徽章 -------------------- */
+.order-status-badge {
+    padding: 3px 8px;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+/* 待付款状态 */
+.status-pay {
+    background-color: #FFF2F2;
+    color: #CC0000;
+    border: 1px solid #FFC4C4;
+}
+
+/* 待发货状态 */
+.status-ship {
+    background-color: #FFF7EB;
+    color: #FF6600;
+    border: 1px solid #FFD8A6;
+}
+
+/* 待收货状态 */
+.status-recv {
+    background-color: #E6F3FF;
+    color: #0066CC;
+    border: 1px solid #B3D7FF;
+}
+
+/* 交易已完成状态 */
+.status-completed {
+    background-color: #E2F5E2;
+    color: #008000;
+    border: 1px solid #B5E4B5;
+}
+
+/* -------------------- 文字颜色与排版工具类 -------------------- */
+.text-brand { color: #C80A1E; }
+.text-highlight { color: #FF6600; }
+.text-muted { color: #666666; }
+.text-danger { color: #CC0000; }
+.text-success { color: #008000; }
+.text-warning { color: #FF6600; }
+.text-info { color: #0066CC; }
+.text-price { color: #C80A1E; }
+
+.text-small { font-size: 10px; }
+.text-11 { font-size: 11px; }
+.text-12 { font-size: 12px; }
+.text-13 { font-size: 13px; }
+.text-14 { font-size: 14px; }
+.text-16 { font-size: 16px; }
+.text-18 { font-size: 18px; }
+.text-20 { font-size: 20px; }
+.text-24 { font-size: 24px; }
+
+.text-bold { font-weight: bold; }
+.text-normal { font-weight: normal; }
+.text-underline { text-decoration: underline; }
+.text-line-through { text-decoration: line-through; }
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+/* 备用字体族定义 */
+.font-yahei { font-family: "Microsoft YaHei", "微软雅黑"; }
+.font-arial { font-family: Arial, sans-serif; }
+.font-consolas { font-family: Consolas, monospace; }
+.font-verdana { font-family: Verdana, Arial, sans-serif; }
+
+/* -------------------- 通用页面组件类 -------------------- */
+.page-title {
+    font-family: "Microsoft YaHei", "微软雅黑";
+    color: #333333;
+    margin-top: 0;
+}
+
+.page-desc {
+    color: #666666;
+}
+
+.admin-page-title {
+    font-family: "Microsoft YaHei", "微软雅黑";
+    margin-top: 0;
+    color: #333333;
+}
+
+.admin-page-desc {
+    color: #666666;
+    margin-bottom: 15px;
+}
+
+/* 红色版块主分割线标题 */
+.section-header {
+    border-bottom: 2px solid #C80A1E;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #C80A1E;
+    float: left;
+}
+
+.section-subtitle {
+    float: right;
+    color: #666666;
+}
+
+.cell-left {
+    text-align: left;
+}
+
+.cell-name {
+    text-align: left;
+    padding-left: 15px;
+}
+
+.cell-address {
+    text-align: left;
+    padding: 10px;
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.cell-items {
+    text-align: left;
+    padding: 10px;
+}
+
+.sku-info {
+    color: #666666;
+}
+
+.subtotal {
+    color: #C80A1E;
+    font-weight: bold;
+}
+
+.order-amount {
+    color: #C80A1E;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+}
+
+.order-fee-note {
+    font-size: 10px;
+    color: #999999;
+}
+
+.original-price {
+    text-decoration: line-through;
+    color: #999999;
+}
+
+.price-large {
+    font-size: 24px;
+    color: #C80A1E;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+}
+
+.pay-amount {
+    color: #C80A1E;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.delete-link {
+    color: #CC0000;
+    font-weight: bold;
+}
+
+.order-no {
+    font-family: Consolas, monospace;
+}
+
+/* -------------------- 缺省/空状态提示 -------------------- */
+.empty-state {
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    padding: 40px;
+    text-align: center;
+}
+
+.empty-state-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #999999;
+}
+
+.empty-state-tip {
+    color: #666666;
+    margin-bottom: 20px;
+}
+
+.empty-tip {
+    color: #999999;
+    text-align: center;
+}
+
+/* 亮橘色高亮提示框 */
+.empty-tip-box {
+    background-color: #FFFDF0;
+    border: 1px dashed #FFCC66;
+    padding: 20px;
+    text-align: center;
+    font-weight: bold;
+    color: #FF6600;
+}
+
+/* -------------------- 收货地址特定样式 -------------------- */
+.address-region {
+    color: #FF6600;
+    font-weight: bold;
+}
+
+.address-name {
+    font-size: 13px;
+}
+
+.address-detail {
+    color: #666666;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.address-empty {
+    text-align: center;
+    padding: 15px;
+    color: #CC0000;
+    font-weight: bold;
+}
+
+/* -------------------- 表单及输入框样式 -------------------- */
+.form-input-sm {
+    width: 70px;
+    text-align: center;
+    border: 1px solid #CCCCCC;
+    padding: 2px;
+}
+
+.form-input-md {
+    width: 150px;
+    height: 22px;
+    padding: 0 5px;
+    border: 1px solid #CCCCCC;
+}
+
+/* -------------------- 图片处理工具类 -------------------- */
+.img-fill {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.img-fill-contain {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.img-thumb-sm {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+.img-thumb-md {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+}
+
+.img-thumb-lg {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+/* -------------------- 布局及外/内边距辅助工具类 -------------------- */
+.float-left { float: left; }
+.float-right { float: right; }
+.display-block { display: block; }
+.display-inline-block { display: inline-block; }
+
+.margin-0 { margin: 0; }
+.margin-top-5 { margin-top: 5px; }
+.margin-top-10 { margin-top: 10px; }
+.margin-top-15 { margin-top: 15px; }
+.margin-top-20 { margin-top: 20px; }
+.margin-top-25 { margin-top: 25px; }
+.margin-bottom-0 { margin-bottom: 0; }
+.margin-bottom-5 { margin-bottom: 5px; }
+.margin-bottom-10 { margin-bottom: 10px; }
+.margin-bottom-15 { margin-bottom: 15px; }
+.margin-bottom-20 { margin-bottom: 20px; }
+
+.padding-0 { padding: 0; }
+.padding-10 { padding: 10px; }
+.padding-15 { padding: 15px; }
+.padding-20 { padding: 20px; }
+
+.width-100 { width: 100%; }
+
+.line-height-18 { line-height: 18px; }
+.line-height-20 { line-height: 20px; }
+.line-height-24 { line-height: 24px; }
+
+/* -------------------- 注册协议阅读框特定样式 -------------------- */
+.protocol-box {
+    width: 200px;
+    height: 90px;
+    border: 1px solid #CCCCCC;
+    overflow-y: scroll;
+    padding: 8px;
+    background-color: #FAFAFA;
+    font-size: 10px;
+    line-height: 14px;
+    color: #777777;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.protocol-agree {
+    margin-top: 8px;
+}
+
+.protocol-agree input {
+    vertical-align: middle;
+    margin: 0 5px 0 0;
+}
+
+.protocol-agree label {
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 11px;
+    color: #666666;
+}
+
+/* -------------------- 订单列表头部卡片 -------------------- */
+.order-header-info {
+    background-color: #F7F7F7;
+    border: 1px solid #CCCCCC;
+    border-bottom: none;
+    padding: 8px 12px;
+    margin-top: 15px;
+    font-size: 12px;
+    overflow: hidden;
+}
+
+.order-header-left {
+    float: left;
+}
+
+.order-header-right {
+    float: right;
+}
+
+.order-table {
+    margin-top: 0;
+}
+
+.order-table th,
+.order-table td {
+    border-top: none;
+}
+
+.order-total-cell {
+    vertical-align: middle;
+    border-left: 1px solid #CCCCCC;
+}
+
+.order-action-cell {
+    vertical-align: middle;
+    border-left: 1px solid #CCCCCC;
+}
+
+.admin-order-item {
+    margin-bottom: 5px;
+    border-bottom: 1px dashed #EEEEEE;
+    padding-bottom: 3px;
+}
+
+.admin-order-item:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.shipping-form {
+    margin: 0;
+}
+
+.inline-form {
+    margin: 0;
+}
+
+.shipping-status {
+    color: #FF6600;
+}
+
+.product-link {
+    font-weight: bold;
+}
